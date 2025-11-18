@@ -264,43 +264,20 @@ async function handleFileUpload(event) {
         return;
     }
     
-    if (!state.currentChatId || state.chats.length === 0) {
-        const newChatId = await createNewChat();
-        if (!newChatId) return;
-    }
-    
+    // Store files temporarily - they'll be sent with the next message
     for (let file of files) {
         await processFile(file);
     }
     
+    showNotification(`Added ${files.length} file(s) to next message`, 'success');
     event.target.value = '';
 }
 
 async function processFile(file) {
     try {
-        if (!state.currentUser) return;
-        
         const fileId = generateFileId();
         let fileContent = '';
         let fileInfo = '';
-        
-        // Create file preview in chat
-        const filePreview = document.createElement('div');
-        filePreview.className = 'file-preview';
-        filePreview.innerHTML = `
-            <div class="file-icon">
-                <i class="fas fa-file"></i>
-            </div>
-            <div class="file-info">
-                <div class="file-name">${file.name}</div>
-                <div class="file-size">${(file.size / 1024).toFixed(2)} KB</div>
-            </div>
-        `;
-        
-        if (elements.chatMessages) {
-            elements.chatMessages.appendChild(filePreview);
-            scrollToBottom();
-        }
         
         if (file.type.startsWith('text/') || 
             file.name.endsWith('.txt') || file.name.endsWith('.js') || 
@@ -313,7 +290,7 @@ async function processFile(file) {
             
         } else if (file.type.startsWith('image/')) {
             const imageInfo = await getImageInfo(file);
-            fileInfo = `Image Analysis:\n- Dimensions: ${imageInfo.width}x${imageInfo.height}\n- File Size: ${(file.size / 1024).toFixed(2)} KB\n- Type: ${file.type}\n\nPlease analyze this image and provide feedback.`;
+            fileInfo = `Image Analysis:\n- Dimensions: ${imageInfo.width}x${imageInfo.height}\n- File Size: ${(file.size / 1024).toFixed(2)} KB\n- Type: ${file.type}`;
             
         } else {
             fileInfo = `File Analysis:\n- File Name: ${file.name}\n- File Type: ${file.type || 'Unknown'}\n- File Size: ${(file.size / 1024).toFixed(2)} KB`;
@@ -325,6 +302,7 @@ async function processFile(file) {
             type: file.type,
             size: file.size,
             content: fileContent,
+            info: fileInfo,
             uploadedAt: new Date().toISOString()
         };
         
@@ -332,14 +310,59 @@ async function processFile(file) {
         state.userProgress.stats.filesUploaded++;
         checkChallenges();
         
-        showNotification(`File "${file.name}" uploaded successfully!`, 'success');
-        
-        // Auto-analyze the file
-        await analyzeFile(fileData, fileInfo);
+        // Show file preview in chat input area
+        showFilePreview(fileData);
         
     } catch (error) {
         console.error('File processing error:', error);
         showNotification(`Failed to process file: ${error.message}`, 'error');
+    }
+}
+
+function showFilePreview(fileData) {
+    // Create file preview in chat input area
+    const filePreview = document.createElement('div');
+    filePreview.className = 'file-preview';
+    filePreview.innerHTML = `
+        <div class="file-icon">
+            <i class="fas fa-file"></i>
+        </div>
+        <div class="file-info">
+            <div class="file-name">${fileData.name}</div>
+            <div class="file-size">${(fileData.size / 1024).toFixed(2)} KB</div>
+        </div>
+        <button class="remove-file-btn" data-fileid="${fileData.id}">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    // Add to a container above chat input
+    let filesContainer = document.getElementById('filesContainer');
+    if (!filesContainer) {
+        filesContainer = document.createElement('div');
+        filesContainer.id = 'filesContainer';
+        filesContainer.className = 'files-container';
+        const chatInputContainer = document.querySelector('.chat-input-container');
+        chatInputContainer.insertBefore(filesContainer, chatInputContainer.querySelector('.chat-input-wrapper'));
+    }
+    
+    filesContainer.appendChild(filePreview);
+    
+    // Add remove file functionality
+    const removeBtn = filePreview.querySelector('.remove-file-btn');
+    removeBtn.addEventListener('click', () => {
+        removeFile(fileData.id);
+        filePreview.remove();
+    });
+}
+
+function removeFile(fileId) {
+    state.uploadedFiles = state.uploadedFiles.filter(file => file.id !== fileId);
+    if (state.uploadedFiles.length === 0) {
+        const filesContainer = document.getElementById('filesContainer');
+        if (filesContainer) {
+            filesContainer.remove();
+        }
     }
 }
 
@@ -372,54 +395,6 @@ function getImageInfo(file) {
         
         img.src = url;
     });
-}
-
-async function analyzeFile(fileData, fileInfo) {
-    try {
-        showTypingIndicator();
-        
-        // Get conversation context
-        const currentChat = state.chats.find(chat => chat.id === state.currentChatId);
-        let conversationContext = '';
-        
-        if (currentChat && currentChat.messages.length > 0) {
-            // Include last few messages for context
-            const recentMessages = currentChat.messages.slice(-4);
-            conversationContext = recentMessages.map(msg => 
-                `${msg.type === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
-            ).join('\n');
-        }
-        
-        const analysisPrompt = `
-${conversationContext ? `Previous conversation context:\n${conversationContext}\n\n` : ''}
-I've uploaded a file for analysis:
-- File Name: ${fileData.name}
-- File Type: ${fileData.type || 'Unknown'}
-- File Size: ${(fileData.size / 1024).toFixed(2)} KB
-
-${fileInfo}
-
-Please analyze this file in the context of our conversation and provide:
-1. What type of content this file contains
-2. Any issues, errors, or improvements needed
-3. If it's code, review it thoroughly
-4. If it's an image/document, provide detailed feedback
-5. Specific suggestions for improvement
-
-Provide comprehensive, educational analysis.
-        `;
-        
-        const reply = await callAI(analysisPrompt);
-        removeTypingIndicator();
-        displayAIResponse(reply);
-        await addMessageToChat('ai', reply);
-        
-    } catch (error) {
-        removeTypingIndicator();
-        const errorMessage = "I'm having trouble analyzing the file right now. Please try again.";
-        displayAIResponse(errorMessage);
-        await addMessageToChat('ai', errorMessage);
-    }
 }
 
 // ==================== CODE BLOCK FUNCTIONS ====================
@@ -1097,7 +1072,7 @@ const API_CONFIG = {
     MODEL: 'FREE'
 };
 
-async function callAI(userMessage) {
+async function callAI(userMessage, attachedFiles = []) {
     try {
         // Get conversation history for context
         const currentChat = state.chats.find(chat => chat.id === state.currentChatId);
@@ -1110,10 +1085,22 @@ async function callAI(userMessage) {
                 `${msg.type === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
             ).join('\n');
         }
-        
-        const fullPrompt = conversationHistory ? 
-            `Previous conversation:\n${conversationHistory}\n\nUser: ${userMessage}` : 
-            userMessage;
+
+        // Build the prompt with files if any
+        let fullPrompt = conversationHistory ? 
+            `Previous conversation:\n${conversationHistory}\n\n` : '';
+
+        // Add file information if files are attached
+        if (attachedFiles.length > 0) {
+            fullPrompt += "I'm sending you the following files:\n";
+            attachedFiles.forEach(file => {
+                fullPrompt += `\n--- File: ${file.name} ---\n`;
+                fullPrompt += file.info + '\n';
+            });
+            fullPrompt += `\nUser: ${userMessage}`;
+        } else {
+            fullPrompt += `User: ${userMessage}`;
+        }
 
         const response = await fetch(API_CONFIG.URL, {
             method: "POST",
@@ -1127,7 +1114,7 @@ You are Hela Learn, a Sri Lankan AI Learning Assistant. Remember the entire conv
 
 CONVERSATION MEMORY: You must remember previous messages in this chat and maintain continuity. Reference earlier topics when relevant.
 
-FILE ANALYSIS: When users upload files, analyze them thoroughly and provide detailed feedback. For images, describe what you can infer and provide educational insights.
+FILE ANALYSIS: When users send files with their messages, analyze them in the context of what they're asking. Provide relevant feedback based on both the files and their question.
 
 RESPONSE GUIDELINES:
 - Maintain conversation context and remember previous exchanges
@@ -1135,6 +1122,7 @@ RESPONSE GUIDELINES:
 - For code/files: give comprehensive reviews with specific improvements
 - Be supportive and encouraging
 - Keep responses clear and actionable
+- When files are provided, analyze them in relation to the user's question
                 `,
                 message: fullPrompt,
                 model: API_CONFIG.MODEL,
@@ -1304,8 +1292,10 @@ function setupSettingsMenu() {
 async function handleSend() {
     try {
         const text = elements.chatInput?.value.trim() || '';
-        if (!text) {
-            showNotification('Please enter a message', 'error');
+        const hasFiles = state.uploadedFiles.length > 0;
+        
+        if (!text && !hasFiles) {
+            showNotification('Please enter a message or upload files', 'error');
             return;
         }
         
@@ -1322,6 +1312,12 @@ async function handleSend() {
             elements.sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         }
         
+        // Clear files container
+        const filesContainer = document.getElementById('filesContainer');
+        if (filesContainer) {
+            filesContainer.remove();
+        }
+        
         if (elements.chatInput) {
             elements.chatInput.value = '';
             autoResizeTextarea();
@@ -1329,16 +1325,27 @@ async function handleSend() {
         
         if (elements.welcomeScreen) elements.welcomeScreen.style.display = 'none';
 
-        addMessageToUI('user', text);
-        await addMessageToChat('user', text);
+        // Create user message with file previews
+        let userMessageContent = text;
+        if (hasFiles) {
+            userMessageContent += `\n\n📎 Attached ${state.uploadedFiles.length} file(s): ${state.uploadedFiles.map(f => f.name).join(', ')}`;
+        }
+        
+        addMessageToUI('user', userMessageContent);
+        await addMessageToChat('user', userMessageContent);
 
         showTypingIndicator();
         
         try {
-            const reply = await callAI(text);
+            // Send message with attached files
+            const reply = await callAI(text, state.uploadedFiles);
             removeTypingIndicator();
             displayAIResponse(reply);
             await addMessageToChat('ai', reply);
+            
+            // Clear uploaded files after sending
+            state.uploadedFiles = [];
+            
         } catch (error) {
             removeTypingIndicator();
             const errorMessage = "Sorry, I'm having trouble connecting right now. Please try again in a moment.";
