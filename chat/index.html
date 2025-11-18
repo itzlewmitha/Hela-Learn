@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hela Code — AI Coding Assistant</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Hela Learn — AI Learning Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -14,23 +14,24 @@
         }
         
         :root {
-            --primary: #8B5FBF;
-            --primary-light: #9D76C1;
-            --primary-dark: #6D3F9F;
-            --text: #FFFFFF;
-            --text-light: #B0B0B0;
-            --background: #121212;
-            --card-bg: #1E1E1E;
-            --card-hover: #252525;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --primary: #007AFF;
+            --primary-light: #5AC8FA;
+            --primary-dark: #0056CC;
+            --text: #000000;
+            --text-light: #8E8E93;
+            --background: #F2F2F7;
+            --card-bg: #FFFFFF;
+            --card-hover: #F8F8F8;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             --transition: all 0.3s ease;
-            --success: #4CAF50;
-            --warning: #ff9800;
-            --error: #f44336;
+            --success: #34C759;
+            --warning: #FF9500;
+            --error: #FF3B30;
+            --border: #C6C6C8;
         }
         
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--background);
             color: var(--text);
             line-height: 1.6;
@@ -38,6 +39,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            -webkit-font-smoothing: antialiased;
         }
         
         .container {
@@ -47,14 +49,15 @@
             flex: 1;
         }
         
-        /* Header - Cleaned Up */
+        /* Header - Apple Style */
         header {
             padding: 15px 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            background: var(--background);
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -64,7 +67,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            font-weight: 700;
+            font-weight: 600;
             font-size: 1.5rem;
             color: var(--primary);
         }
@@ -93,6 +96,7 @@
             background: var(--card-bg);
             padding: 8px 16px;
             border-radius: 20px;
+            box-shadow: var(--shadow);
         }
 
         .user-avatar {
@@ -144,23 +148,25 @@
         
         .nav-btn {
             background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
             border-radius: 8px;
             padding: 8px 12px;
             color: var(--text);
             cursor: pointer;
             transition: var(--transition);
             font-size: 0.9rem;
+            box-shadow: var(--shadow);
         }
         
         .nav-btn:hover {
             background: var(--primary);
+            color: white;
             transform: translateY(-2px);
         }
         
         @keyframes pulse {
             0% { box-shadow: var(--shadow); }
-            50% { box-shadow: 0 0 0 3px rgba(139, 95, 191, 0.4); }
+            50% { box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.4); }
             100% { box-shadow: var(--shadow); }
         }
         
@@ -179,6 +185,7 @@
             display: flex;
             flex-direction: column;
             margin-top: 20px;
+            box-shadow: var(--shadow);
         }
         
         .chat-area {
@@ -189,6 +196,7 @@
             flex-direction: column;
             margin-top: 20px;
             overflow: hidden;
+            box-shadow: var(--shadow);
         }
         
         /* Chat Messages */
@@ -207,20 +215,22 @@
             gap: 12px;
             max-width: 100%;
             padding: 15px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05);
+            border-radius: 18px;
+            background: rgba(0, 0, 0, 0.02);
             margin-bottom: 10px;
+            border: 1px solid var(--border);
         }
         
         .message.user {
             align-self: flex-end;
             flex-direction: row-reverse;
-            background: rgba(139, 95, 191, 0.15);
+            background: rgba(0, 122, 255, 0.1);
+            border-color: rgba(0, 122, 255, 0.2);
         }
         
         .message.ai {
             align-self: flex-start;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.02);
         }
         
         .message-avatar {
@@ -232,6 +242,7 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            color: white;
             flex-shrink: 0;
         }
         
@@ -278,15 +289,15 @@
         /* Chat Input */
         .chat-input-container {
             padding: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid var(--border);
         }
         
         .chat-input-wrapper {
             display: flex;
             gap: 10px;
             align-items: flex-end;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 10px;
         }
@@ -333,6 +344,7 @@
             font-size: 2.5rem;
             color: var(--primary);
             margin-bottom: 20px;
+            font-weight: 700;
         }
         
         .welcome-subtitle {
@@ -356,9 +368,9 @@
         }
         
         .example-prompt-btn {
-            background: rgba(139, 95, 191, 0.1);
-            border: 1px solid rgba(139, 95, 191, 0.3);
-            border-radius: 8px;
+            background: rgba(0, 122, 255, 0.05);
+            border: 1px solid rgba(0, 122, 255, 0.2);
+            border-radius: 12px;
             padding: 12px 16px;
             color: var(--text);
             text-align: left;
@@ -369,7 +381,7 @@
         }
         
         .example-prompt-btn:hover {
-            background: rgba(139, 95, 191, 0.2);
+            background: rgba(0, 122, 255, 0.1);
             border-color: var(--primary);
             transform: translateX(5px);
         }
@@ -393,11 +405,11 @@
         }
         
         .chat-item:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.02);
         }
         
         .chat-item.active {
-            background: rgba(139, 95, 191, 0.2);
+            background: rgba(0, 122, 255, 0.1);
             border-left: 3px solid var(--primary);
         }
         
@@ -436,12 +448,12 @@
 
         .share-chat:hover {
             color: var(--primary);
-            background: rgba(139, 95, 191, 0.1);
+            background: rgba(0, 122, 255, 0.1);
         }
 
         .delete-chat:hover {
             color: var(--error);
-            background: rgba(244, 67, 54, 0.1);
+            background: rgba(255, 59, 48, 0.1);
         }
         
         /* Code Block Styling */
@@ -496,7 +508,7 @@
         }
         
         code {
-            font-family: 'Courier New', monospace;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
             font-size: 0.9em;
             color: #f8f8f2;
         }
@@ -520,7 +532,7 @@
             right: 20px;
             background: var(--card-bg);
             border: 1px solid;
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 12px 20px;
             z-index: 1000;
             box-shadow: var(--shadow);
@@ -529,12 +541,12 @@
         
         .notification.success {
             border-color: var(--success);
-            background: rgba(76, 175, 80, 0.1);
+            background: rgba(52, 199, 89, 0.1);
         }
         
         .notification.error {
             border-color: var(--error);
-            background: rgba(244, 67, 54, 0.1);
+            background: rgba(255, 59, 48, 0.1);
         }
 
         /* Footer */
@@ -543,7 +555,7 @@
             padding: 20px;
             color: var(--text-light);
             font-size: 0.9rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid var(--border);
             margin-top: auto;
         }
 
@@ -554,7 +566,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -599,9 +611,9 @@
         }
         
         .credit-package {
-            background: rgba(139, 95, 191, 0.1);
-            border: 1px solid rgba(139, 95, 191, 0.3);
-            border-radius: 8px;
+            background: rgba(0, 122, 255, 0.05);
+            border: 1px solid rgba(0, 122, 255, 0.2);
+            border-radius: 12px;
             padding: 15px;
             text-align: center;
             cursor: pointer;
@@ -609,7 +621,7 @@
         }
         
         .credit-package:hover, .credit-package.selected {
-            background: rgba(139, 95, 191, 0.2);
+            background: rgba(0, 122, 255, 0.1);
             border-color: var(--primary);
         }
         
@@ -627,7 +639,7 @@
         .payment-btn {
             background: var(--primary);
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 12px 20px;
             color: white;
             cursor: pointer;
@@ -654,13 +666,14 @@
         }
         
         .challenge-item {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 12px;
             padding: 15px;
             margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border: 1px solid var(--border);
         }
         
         .challenge-info {
@@ -687,12 +700,12 @@
             font-size: 0.8rem;
             padding: 4px 8px;
             border-radius: 12px;
-            background: rgba(76, 175, 80, 0.2);
+            background: rgba(52, 199, 89, 0.1);
             color: var(--success);
         }
         
         .challenge-status.pending {
-            background: rgba(255, 152, 0, 0.2);
+            background: rgba(255, 149, 0, 0.1);
             color: var(--warning);
         }
         
@@ -706,12 +719,13 @@
             top: 100%;
             right: 0;
             background: var(--card-bg);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 10px 0;
-            min-width: 180px;
+            min-width: 200px;
             box-shadow: var(--shadow);
             z-index: 100;
             display: none;
+            border: 1px solid var(--border);
         }
         
         .settings-menu.open .settings-dropdown {
@@ -728,10 +742,11 @@
             color: var(--text);
             cursor: pointer;
             transition: var(--transition);
+            font-size: 0.9rem;
         }
         
         .settings-item:hover {
-            background: rgba(139, 95, 191, 0.1);
+            background: rgba(0, 122, 255, 0.1);
         }
         
         .settings-item.delete {
@@ -739,7 +754,60 @@
         }
         
         .settings-item.delete:hover {
-            background: rgba(244, 67, 54, 0.1);
+            background: rgba(255, 59, 48, 0.1);
+        }
+
+        /* Account Deletion Modal */
+        .delete-account-modal {
+            max-width: 400px;
+        }
+        
+        .delete-warning {
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .delete-warning h3 {
+            color: var(--error);
+            margin-bottom: 10px;
+        }
+        
+        .delete-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .cancel-btn {
+            flex: 1;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .cancel-btn:hover {
+            background: rgba(0, 0, 0, 0.02);
+        }
+        
+        .confirm-delete-btn {
+            flex: 1;
+            background: var(--error);
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .confirm-delete-btn:hover {
+            background: #d70015;
         }
 
         /* Responsive */
@@ -782,13 +850,13 @@
     </style>
 </head>
 <body>
-    <!-- Header - Cleaned Up -->
+    <!-- Header - Apple Style -->
     <header class="container">
         <div class="logo">
             <div class="logo-icon">
-                <i class="fas fa-code"></i>
+                <i class="fas fa-graduation-cap"></i>
             </div>
-            <span>Hela Code</span>
+            <span>Hela Learn</span>
         </div>
         <div class="user-section">
             <div class="user-profile">
@@ -811,6 +879,22 @@
                 <button class="nav-btn" id="buyCreditsBtn" title="Buy Credits">
                     <i class="fas fa-shopping-cart"></i>
                 </button>
+                <div class="settings-menu" id="settingsMenu">
+                    <button class="nav-btn" id="settingsBtn" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <div class="settings-dropdown">
+                        <button class="settings-item" id="profileSettingsBtn">
+                            <i class="fas fa-user-cog"></i> Profile Settings
+                        </button>
+                        <button class="settings-item" id="appearanceSettingsBtn">
+                            <i class="fas fa-palette"></i> Appearance
+                        </button>
+                        <button class="settings-item" id="deleteAccountBtn">
+                            <i class="fas fa-user-slash"></i> Delete Account
+                        </button>
+                    </div>
+                </div>
                 <button class="nav-btn" id="logoutBtn" title="Logout">
                     <i class="fas fa-sign-out-alt"></i>
                 </button>
@@ -835,8 +919,8 @@
             <div class="chat-area">
                 <!-- Welcome Screen -->
                 <div class="welcome-screen" id="welcomeScreen">
-                    <h1 class="welcome-title">Welcome to Hela Code</h1>
-                    <p class="welcome-subtitle">Sri Lanka's #1 AI Coding Assistant</p>
+                    <h1 class="welcome-title">Welcome to Hela Learn</h1>
+                    <p class="welcome-subtitle">Sri Lanka's #1 AI Learning Assistant</p>
                     <div class="example-prompts" id="examplePrompts">
                         <div class="prompts-container">
                             <button class="example-prompt-btn" data-prompt="How to create a responsive navbar with React?">
@@ -887,7 +971,7 @@
                 <h2 class="modal-title">Buy Credits</h2>
                 <button class="close-btn" id="closePaymentModal">&times;</button>
             </div>
-            <p>Choose a credit package to continue using Hela Code</p>
+            <p>Choose a credit package to continue using Hela Learn</p>
             <div class="credit-packages">
                 <div class="credit-package" data-credits="100" data-price="2.99">
                     <div class="package-credits">100 Credits</div>
@@ -907,7 +991,7 @@
                 </div>
             </div>
             <button class="payment-btn" id="googlePayBtn" disabled>
-                Pay with Google Pay
+                Pay with Apple Pay
             </button>
         </div>
     </div>
@@ -916,7 +1000,7 @@
     <div class="modal-overlay" id="challengesModal" style="display: none;">
         <div class="modal">
             <div class="modal-header">
-                <h2 class="modal-title">Coding Challenges</h2>
+                <h2 class="modal-title">Learning Challenges</h2>
                 <button class="close-btn" id="closeChallengesModal">&times;</button>
             </div>
             <p>Complete challenges to earn credits and level up!</p>
@@ -926,16 +1010,133 @@
         </div>
     </div>
 
+    <!-- Account Deletion Modal -->
+    <div class="modal-overlay" id="deleteAccountModal" style="display: none;">
+        <div class="modal delete-account-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Delete Account</h2>
+                <button class="close-btn" id="closeDeleteAccountModal">&times;</button>
+            </div>
+            <div class="delete-warning">
+                <h3><i class="fas fa-exclamation-triangle"></i> Warning</h3>
+                <p>This action cannot be undone. All your data, including chat history, credits, and progress will be permanently deleted.</p>
+            </div>
+            <p>Are you sure you want to delete your account?</p>
+            <div class="delete-actions">
+                <button class="cancel-btn" id="cancelDeleteBtn">Cancel</button>
+                <button class="confirm-delete-btn" id="confirmDeleteBtn">Delete Account</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="script.js"></script>
+    <script>
+        // JavaScript for UI interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Settings menu toggle
+            const settingsMenu = document.getElementById('settingsMenu');
+            const settingsBtn = document.getElementById('settingsBtn');
+            
+            settingsBtn.addEventListener('click', function() {
+                settingsMenu.classList.toggle('open');
+            });
+            
+            // Close settings menu when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!settingsMenu.contains(event.target)) {
+                    settingsMenu.classList.remove('open');
+                }
+            });
+            
+            // Account deletion modal
+            const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+            const deleteAccountModal = document.getElementById('deleteAccountModal');
+            const closeDeleteAccountModal = document.getElementById('closeDeleteAccountModal');
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+            
+            deleteAccountBtn.addEventListener('click', function() {
+                deleteAccountModal.style.display = 'flex';
+                settingsMenu.classList.remove('open');
+            });
+            
+            closeDeleteAccountModal.addEventListener('click', function() {
+                deleteAccountModal.style.display = 'none';
+            });
+            
+            cancelDeleteBtn.addEventListener('click', function() {
+                deleteAccountModal.style.display = 'none';
+            });
+            
+            // Payment modal interactions
+            const buyCreditsBtn = document.getElementById('buyCreditsBtn');
+            const paymentModal = document.getElementById('paymentModal');
+            const closePaymentModal = document.getElementById('closePaymentModal');
+            const creditPackages = document.querySelectorAll('.credit-package');
+            const googlePayBtn = document.getElementById('googlePayBtn');
+            
+            buyCreditsBtn.addEventListener('click', function() {
+                paymentModal.style.display = 'flex';
+            });
+            
+            closePaymentModal.addEventListener('click', function() {
+                paymentModal.style.display = 'none';
+            });
+            
+            creditPackages.forEach(pkg => {
+                pkg.addEventListener('click', function() {
+                    // Remove selected class from all packages
+                    creditPackages.forEach(p => p.classList.remove('selected'));
+                    // Add selected class to clicked package
+                    this.classList.add('selected');
+                    // Enable payment button
+                    googlePayBtn.disabled = false;
+                });
+            });
+            
+            // Challenges modal
+            const challengesBtn = document.getElementById('challengesBtn');
+            const challengesModal = document.getElementById('challengesModal');
+            const closeChallengesModal = document.getElementById('closeChallengesModal');
+            
+            challengesBtn.addEventListener('click', function() {
+                challengesModal.style.display = 'flex';
+            });
+            
+            closeChallengesModal.addEventListener('click', function() {
+                challengesModal.style.display = 'none';
+            });
+            
+            // Example prompts
+            const examplePromptBtns = document.querySelectorAll('.example-prompt-btn');
+            const chatInput = document.getElementById('chatInput');
+            
+            examplePromptBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const prompt = this.getAttribute('data-prompt');
+                    chatInput.value = prompt;
+                    chatInput.focus();
+                });
+            });
+            
+            // Auto-resize textarea
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+            
+            // Close modals when clicking on overlay
+            const modals = document.querySelectorAll('.modal-overlay');
+            modals.forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
-
-
-
-
-
-
