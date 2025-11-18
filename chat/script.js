@@ -24,6 +24,7 @@ let state = {
     uploadedFiles: [],
     isInitialized: false,
     firestoreEnabled: true,
+    theme: localStorage.getItem('helaTheme') || 'dark',
     userProgress: {
         challenges: [],
         credits: 50,
@@ -140,6 +141,59 @@ function generateFileId() {
     return 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
 
+// ==================== THEME MANAGEMENT ====================
+function initializeTheme() {
+    // Apply saved theme
+    applyTheme(state.theme);
+    
+    // Set up theme toggle
+    const appearanceBtn = document.getElementById('appearanceSettingsBtn');
+    if (appearanceBtn) {
+        appearanceBtn.addEventListener('click', toggleTheme);
+    }
+}
+
+function toggleTheme() {
+    state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('helaTheme', state.theme);
+    applyTheme(state.theme);
+    showNotification(`Switched to ${state.theme} theme`);
+    
+    // Close settings menu
+    const settingsMenu = document.getElementById('settingsMenu');
+    if (settingsMenu) {
+        settingsMenu.classList.remove('open');
+    }
+}
+
+function applyTheme(theme) {
+    const root = document.documentElement;
+    
+    if (theme === 'light') {
+        root.style.setProperty('--primary', '#007AFF');
+        root.style.setProperty('--primary-light', '#5AC8FA');
+        root.style.setProperty('--primary-dark', '#0056CC');
+        root.style.setProperty('--text', '#000000');
+        root.style.setProperty('--text-light', '#8E8E93');
+        root.style.setProperty('--background', '#F2F2F7');
+        root.style.setProperty('--card-bg', '#FFFFFF');
+        root.style.setProperty('--card-hover', '#F8F8F8');
+        root.style.setProperty('--shadow', '0 4px 12px rgba(0, 0, 0, 0.08)');
+        root.style.setProperty('--border', '#C6C6C8');
+    } else {
+        root.style.setProperty('--primary', '#8B5FBF');
+        root.style.setProperty('--primary-light', '#9D76C1');
+        root.style.setProperty('--primary-dark', '#6D3F9F');
+        root.style.setProperty('--text', '#FFFFFF');
+        root.style.setProperty('--text-light', '#B0B0B0');
+        root.style.setProperty('--background', '#121212');
+        root.style.setProperty('--card-bg', '#1E1E1E');
+        root.style.setProperty('--card-hover', '#252525');
+        root.style.setProperty('--shadow', '0 4px 12px rgba(0, 0, 0, 0.3)');
+        root.style.setProperty('--border', '#333333');
+    }
+}
+
 // ==================== TYPING INDICATOR FUNCTIONS ====================
 function removeTypingIndicator() {
     const typing = document.getElementById('typing-indicator');
@@ -183,27 +237,29 @@ function showTypingIndicator() {
     }
 }
 
-// ==================== FILE UPLOAD FUNCTIONS (No Storage) ====================
+// ==================== FILE UPLOAD FUNCTIONS ====================
 function setupFileUpload() {
+    // Create file input in chat input area
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.id = 'fileInput';
     fileInput.style.display = 'none';
     fileInput.multiple = true;
-    fileInput.accept = '*/*'; // Accept all file types
+    fileInput.accept = '*/*';
     
     document.body.appendChild(fileInput);
     
+    // Create upload button in chat input area
     const uploadBtn = document.createElement('button');
-    uploadBtn.className = 'nav-btn';
-    uploadBtn.id = 'uploadBtn';
+    uploadBtn.type = 'button';
+    uploadBtn.className = 'file-upload-btn';
+    uploadBtn.innerHTML = '<i class="fas fa-paperclip"></i>';
     uploadBtn.title = 'Upload Files';
-    uploadBtn.innerHTML = '<i class="fas fa-upload"></i>';
     
-    // Add upload button to nav-buttons
-    const navButtons = document.querySelector('.nav-buttons');
-    if (navButtons) {
-        navButtons.insertBefore(uploadBtn, navButtons.firstChild);
+    // Add upload button to chat input wrapper
+    const chatInputWrapper = document.querySelector('.chat-input-wrapper');
+    if (chatInputWrapper) {
+        chatInputWrapper.insertBefore(uploadBtn, chatInputWrapper.querySelector('.send-btn'));
     }
     
     uploadBtn.addEventListener('click', () => {
@@ -220,6 +276,12 @@ async function handleFileUpload(event) {
     if (!state.currentUser) {
         showNotification('Please sign in to upload files', 'error');
         return;
+    }
+    
+    // Check if we have a current chat, if not create one
+    if (!state.currentChatId || state.chats.length === 0) {
+        const newChatId = await createNewChat();
+        if (!newChatId) return;
     }
     
     for (let file of files) {
@@ -254,17 +316,14 @@ async function processFile(file) {
             file.name.endsWith('.cpp') ||
             file.name.endsWith('.c')) {
             
-            // For text-based files, read the content
             fileContent = await readFileAsText(file);
             fileInfo = `File Content:\n${fileContent}`;
             
         } else if (file.type.startsWith('image/')) {
-            // For images, create a preview and get basic info
             const imageInfo = await getImageInfo(file);
             fileInfo = `Image Analysis:\n- Dimensions: ${imageInfo.width}x${imageInfo.height}\n- File Size: ${(file.size / 1024).toFixed(2)} KB\n- Type: ${file.type}\n\nSince this is an image file, I can analyze it based on its properties and filename.`;
             
         } else {
-            // For other file types, provide basic info
             fileInfo = `File Analysis:\n- File Name: ${file.name}\n- File Type: ${file.type || 'Unknown'}\n- File Size: ${(file.size / 1024).toFixed(2)} KB\n- Last Modified: ${new Date(file.lastModified).toLocaleDateString()}`;
         }
         
@@ -284,7 +343,7 @@ async function processFile(file) {
         state.userProgress.stats.filesUploaded++;
         checkChallenges();
         
-        // Save file metadata to Firestore (without actual file content for large files)
+        // Save file metadata to Firestore
         if (state.firestoreEnabled) {
             await db.collection('users')
                 .doc(state.currentUser.uid)
@@ -297,26 +356,30 @@ async function processFile(file) {
                     size: file.size,
                     uploadedAt: new Date().toISOString(),
                     lastModified: file.lastModified
-                    // Don't store large file content in Firestore
                 });
         }
         
         showNotification(`File "${file.name}" processed successfully!`, 'success');
         
-        // Add file message to chat
+        // Add file message to chat with file preview
         if (state.currentChatId) {
-            const fileMessage = `I've uploaded a file: ${file.name}. Can you help me analyze this?`;
-            addMessageToUI('user', fileMessage);
-            await addMessageToChat('user', fileMessage);
-            
-            // Auto-analyze the file
-            await analyzeFile(fileData, fileInfo);
+            await addFileMessageToChat(fileData, fileInfo);
         }
         
     } catch (error) {
         console.error('File processing error:', error);
         showNotification(`Failed to process file: ${error.message}`, 'error');
     }
+}
+
+async function addFileMessageToChat(fileData, fileInfo) {
+    // Create file preview message
+    const fileMessage = `📎 Uploaded file: ${fileData.name} (${(fileData.size / 1024).toFixed(2)} KB)`;
+    addMessageToUI('user', fileMessage);
+    await addMessageToChat('user', fileMessage);
+    
+    // Auto-analyze the file
+    await analyzeFile(fileData, fileInfo);
 }
 
 function readFileAsText(file) {
@@ -1352,6 +1415,7 @@ async function deleteUserAccount() {
         // Delete local storage data
         localStorage.removeItem(`helaChats_${state.currentUser.uid}`);
         localStorage.removeItem(`helaProgress_${state.currentUser.uid}`);
+        localStorage.removeItem('helaTheme');
         
         // Delete user authentication
         await state.currentUser.delete();
@@ -1441,6 +1505,9 @@ async function initializeElements() {
             creditBar: document.getElementById('creditBar'),
             buyCreditsBtn: document.getElementById('buyCreditsBtn'),
             challengesBtn: document.getElementById('challengesBtn'),
+            settingsBtn: document.getElementById('settingsBtn'),
+            settingsMenu: document.getElementById('settingsMenu'),
+            appearanceSettingsBtn: document.getElementById('appearanceSettingsBtn'),
             deleteAccountBtn: document.getElementById('deleteAccountBtn'),
             confirmDeleteBtn: document.getElementById('confirmDeleteBtn'),
             cancelDeleteBtn: document.getElementById('cancelDeleteBtn'),
@@ -1476,10 +1543,28 @@ function setupEventListeners() {
         elements.challengesBtn.addEventListener('click', showChallengesModal);
     }
 
+    // Settings menu toggle
+    if (elements.settingsBtn && elements.settingsMenu) {
+        elements.settingsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            elements.settingsMenu.classList.toggle('open');
+        });
+    }
+
+    // Close settings menu when clicking outside
+    document.addEventListener('click', () => {
+        if (elements.settingsMenu) {
+            elements.settingsMenu.classList.remove('open');
+        }
+    });
+
     // Account deletion listeners
     if (elements.deleteAccountBtn) {
         elements.deleteAccountBtn.addEventListener('click', () => {
             document.getElementById('deleteAccountModal').style.display = 'flex';
+            if (elements.settingsMenu) {
+                elements.settingsMenu.classList.remove('open');
+            }
         });
     }
 
@@ -1507,7 +1592,6 @@ function setupEventListeners() {
                 elements.chatInput.value = prompt;
                 elements.chatInput.focus();
                 autoResizeTextarea();
-                showNotification('Prompt added to chat! Click send when ready.', 'success');
             }
         });
     });
@@ -1590,6 +1674,7 @@ async function startApplication() {
         setupPaymentModal();
         setupChallengesModal();
         setupFileUpload();
+        initializeTheme();
         await initializeApp();
         
         showNotification('Hela Learn loaded successfully!');
