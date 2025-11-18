@@ -318,7 +318,41 @@
             0%, 60%, 100% { transform: translateY(0); }
             30% { transform: translateY(-5px); }
         }
-        
+        /* Files Container */
+.files-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.file-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(139, 95, 191, 0.1);
+    border: 1px solid rgba(139, 95, 191, 0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    position: relative;
+}
+
+.remove-file-btn {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.remove-file-btn:hover {
+    color: var(--error);
+    background: rgba(244, 67, 54, 0.1);
+}
         /* Chat Input */
         .chat-input-container {
             padding: 16px;
@@ -1094,3 +1128,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+
