@@ -52,12 +52,12 @@
         
         /* Header - Purple Dark Style */
         header {
-            padding: 15px 0;
+            padding: 12px 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border);
-            background: rgba(30, 30, 30, 0.9);
+            background: rgba(30, 30, 30, 0.95);
             backdrop-filter: blur(10px);
             position: sticky;
             top: 0;
@@ -69,7 +69,7 @@
             align-items: center;
             gap: 10px;
             font-weight: 600;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             color: var(--primary);
         }
         
@@ -87,35 +87,29 @@
         .user-section {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
         
         .user-profile {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             background: var(--card-bg);
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 20px;
             box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
-
-        .user-profile:hover {
-            background: var(--card-hover);
-            border-color: var(--primary);
         }
 
         .user-avatar {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
         .user-info {
@@ -125,29 +119,24 @@
 
         .user-name {
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .user-level {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-light);
         }
         
         .credit-bar {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             background: var(--card-bg);
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 20px;
             box-shadow: var(--shadow);
             font-weight: 500;
-            transition: var(--transition);
-        }
-        
-        .credit-bar:hover {
-            background: var(--card-hover);
-            border-color: var(--primary);
+            font-size: 0.85rem;
         }
         
         .credit-bar.low {
@@ -156,7 +145,7 @@
         
         .nav-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
         
         .nav-btn {
@@ -167,7 +156,7 @@
             color: var(--text);
             cursor: pointer;
             transition: var(--transition);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             box-shadow: var(--shadow);
         }
         
@@ -188,23 +177,18 @@
         .main-layout {
             display: flex;
             gap: 20px;
-            min-height: calc(100vh - 180px);
+            min-height: calc(100vh - 140px);
+            padding: 10px 0;
         }
         
         .sidebar {
-            width: 300px;
+            width: 280px;
             background: var(--card-bg);
             border-radius: 16px;
-            padding: 20px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            margin-top: 20px;
             box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
-        
-        .sidebar:hover {
-            box-shadow: 0 6px 16px rgba(139, 95, 191, 0.2);
         }
         
         .chat-area {
@@ -213,41 +197,30 @@
             border-radius: 16px;
             display: flex;
             flex-direction: column;
-            margin-top: 20px;
             overflow: hidden;
             box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
-        
-        .chat-area:hover {
-            box-shadow: 0 6px 16px rgba(139, 95, 191, 0.2);
         }
         
         /* Chat Messages */
         .chat-messages {
             flex: 1;
-            padding: 20px;
+            padding: 16px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            max-height: calc(100vh - 300px);
+            gap: 16px;
+            max-height: calc(100vh - 280px);
         }
         
         .message {
             display: flex;
             gap: 12px;
-            max-width: 100%;
-            padding: 15px;
+            max-width: 85%;
+            padding: 12px;
             border-radius: 18px;
             background: rgba(255, 255, 255, 0.05);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             border: 1px solid var(--border);
-            transition: var(--transition);
-        }
-        
-        .message:hover {
-            border-color: var(--primary);
         }
         
         .message.user {
@@ -263,8 +236,8 @@
         }
         
         .message-avatar {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: var(--primary);
             display: flex;
@@ -273,11 +246,7 @@
             font-weight: bold;
             color: white;
             flex-shrink: 0;
-            transition: var(--transition);
-        }
-        
-        .message:hover .message-avatar {
-            background: var(--primary-hover);
+            font-size: 0.9rem;
         }
         
         .message-bubble {
@@ -290,6 +259,36 @@
         .message.user .message-bubble {
             background: var(--primary);
             color: white;
+        }
+        
+        .file-preview {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .file-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .file-size {
+            font-size: 0.8rem;
+            color: var(--text-light);
         }
         
         .typing-indicator {
@@ -322,18 +321,18 @@
         
         /* Chat Input */
         .chat-input-container {
-            padding: 20px;
+            padding: 16px;
             border-top: 1px solid var(--border);
         }
         
         .chat-input-wrapper {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: flex-end;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 10px;
+            padding: 8px;
             transition: var(--transition);
         }
         
@@ -342,11 +341,26 @@
             box-shadow: 0 0 0 2px rgba(139, 95, 191, 0.2);
         }
         
+        .file-upload-btn {
+            background: transparent;
+            border: none;
+            padding: 10px 12px;
+            color: var(--text-light);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+        
+        .file-upload-btn:hover {
+            background: rgba(139, 95, 191, 0.1);
+            color: var(--primary);
+        }
+        
         .chat-input {
             flex: 1;
             background: transparent;
             border: none;
-            padding: 12px 16px;
+            padding: 10px 12px;
             color: var(--text);
             font-family: inherit;
             font-size: 1rem;
@@ -362,11 +376,16 @@
         .send-btn {
             background: var(--primary);
             border: none;
-            border-radius: 12px;
-            padding: 12px 20px;
+            border-radius: 10px;
+            padding: 10px 16px;
             color: white;
             cursor: pointer;
             transition: var(--transition);
+            min-width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .send-btn:hover {
@@ -374,36 +393,42 @@
             transform: translateY(-2px);
         }
         
+        .send-btn:disabled {
+            background: var(--text-light);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
         /* Welcome Screen */
         .welcome-screen {
             text-align: center;
-            padding: 60px 40px;
+            padding: 40px 20px;
         }
         
         .welcome-title {
-            font-size: 2.5rem;
+            font-size: 2rem;
             color: var(--primary);
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             font-weight: 700;
         }
         
         .welcome-subtitle {
             color: var(--text-light);
-            margin-bottom: 40px;
-            font-size: 1.2rem;
+            margin-bottom: 32px;
+            font-size: 1.1rem;
         }
         
         /* Example Prompts */
         .example-prompts {
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
         }
         
         .prompts-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            max-width: 500px;
+            gap: 8px;
+            max-width: 400px;
             margin: 0 auto;
         }
         
@@ -430,23 +455,22 @@
         .chat-history {
             flex: 1;
             overflow-y: auto;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
         
         .chat-item {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
             cursor: pointer;
             transition: var(--transition);
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
         
         .chat-item:hover {
             background: rgba(139, 95, 191, 0.1);
-            transform: translateX(5px);
         }
         
         .chat-item.active {
@@ -455,13 +479,13 @@
         }
         
         .chat-item-icon {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--primary);
         }
         
         .chat-item-title {
             flex: 1;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -469,7 +493,7 @@
         
         .chat-actions {
             display: flex;
-            gap: 5px;
+            gap: 4px;
             opacity: 0;
             transition: var(--transition);
         }
@@ -485,7 +509,7 @@
             cursor: pointer;
             padding: 4px;
             border-radius: 4px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             transition: var(--transition);
         }
 
@@ -504,13 +528,8 @@
             background: #1e1e1e;
             border: 1px solid #333;
             border-radius: 8px;
-            margin: 15px 0;
+            margin: 12px 0;
             overflow: hidden;
-            transition: var(--transition);
-        }
-        
-        .code-block:hover {
-            border-color: var(--primary);
         }
         
         .code-header {
@@ -550,29 +569,17 @@
         
         pre {
             margin: 0;
-            padding: 16px;
+            padding: 12px;
             overflow-x: auto;
             background: #1e1e1e;
+            font-size: 0.85rem;
         }
         
         code {
             font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
-            font-size: 0.9em;
             color: #f8f8f2;
         }
         
-        /* Language-specific colors */
-        .language-javascript { color: #f1fa8c; }
-        .language-python { color: #8be9fd; }
-        .language-html { color: #ff79c6; }
-        .language-css { color: #50fa7b; }
-        .language-json { color: #bd93f9; }
-        .language-java { color: #ffb86c; }
-        .language-php { color: #8be9fd; }
-        .language-sql { color: #50fa7b; }
-        .language-bash { color: #ff79c6; }
-        .language-text { color: #f8f8f2; }
-
         /* Notifications */
         .notification {
             position: fixed;
@@ -600,14 +607,14 @@
         /* Footer */
         .footer {
             text-align: center;
-            padding: 20px;
+            padding: 16px;
             color: var(--text-light);
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             border-top: 1px solid var(--border);
             margin-top: auto;
         }
 
-        /* Payment Modal */
+        /* Challenges Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -619,26 +626,29 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            padding: 20px;
         }
         
         .modal {
             background: var(--card-bg);
             border-radius: 16px;
-            padding: 30px;
+            padding: 24px;
             max-width: 500px;
-            width: 90%;
+            width: 100%;
             box-shadow: var(--shadow);
+            max-height: 90vh;
+            overflow-y: auto;
         }
         
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
         
         .modal-title {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 600;
             color: var(--primary);
         }
@@ -656,85 +666,22 @@
             color: var(--primary);
         }
         
-        .credit-packages {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        
-        .credit-package {
-            background: rgba(139, 95, 191, 0.1);
-            border: 1px solid rgba(139, 95, 191, 0.3);
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        
-        .credit-package:hover, .credit-package.selected {
-            background: rgba(139, 95, 191, 0.2);
-            border-color: var(--primary);
-            transform: translateY(-5px);
-        }
-        
-        .package-credits {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--primary);
-        }
-        
-        .package-price {
-            font-size: 0.9rem;
-            color: var(--text-light);
-        }
-        
-        .payment-btn {
-            background: var(--primary);
-            border: none;
-            border-radius: 12px;
-            padding: 12px 20px;
-            color: white;
-            cursor: pointer;
-            font-size: 1rem;
-            width: 100%;
-            margin-top: 20px;
-            transition: var(--transition);
-        }
-        
-        .payment-btn:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-        }
-        
-        .payment-btn:disabled {
-            background: var(--text-light);
-            cursor: not-allowed;
-        }
-        
         /* Challenges Modal */
         .challenges-container {
             max-height: 400px;
             overflow-y: auto;
-            margin: 20px 0;
+            margin: 16px 0;
         }
         
         .challenge-item {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 10px;
+            padding: 12px;
+            margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border: 1px solid var(--border);
-            transition: var(--transition);
-        }
-        
-        .challenge-item:hover {
-            border-color: var(--primary);
-            transform: translateX(5px);
         }
         
         .challenge-info {
@@ -743,22 +690,23 @@
         
         .challenge-title {
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
         }
         
         .challenge-description {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--text-light);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         
         .challenge-reward {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--primary);
         }
         
         .challenge-status {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             padding: 4px 8px;
             border-radius: 12px;
             background: rgba(76, 175, 80, 0.2);
@@ -781,8 +729,8 @@
             right: 0;
             background: var(--card-bg);
             border-radius: 12px;
-            padding: 10px 0;
-            min-width: 200px;
+            padding: 8px 0;
+            min-width: 180px;
             box-shadow: var(--shadow);
             z-index: 100;
             display: none;
@@ -799,11 +747,11 @@
             text-align: left;
             background: none;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 16px;
             color: var(--text);
             cursor: pointer;
             transition: var(--transition);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
         
         .settings-item:hover {
@@ -827,19 +775,20 @@
             background: rgba(255, 59, 48, 0.1);
             border: 1px solid rgba(255, 59, 48, 0.3);
             border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
+            padding: 12px;
+            margin: 12px 0;
         }
         
         .delete-warning h3 {
             color: var(--error);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            font-size: 1rem;
         }
         
         .delete-actions {
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 8px;
+            margin-top: 16px;
         }
         
         .cancel-btn {
@@ -847,10 +796,11 @@
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 12px;
+            padding: 10px;
             cursor: pointer;
             transition: var(--transition);
             color: var(--text);
+            font-size: 0.9rem;
         }
         
         .cancel-btn:hover {
@@ -863,52 +813,132 @@
             background: var(--error);
             border: none;
             border-radius: 8px;
-            padding: 12px;
+            padding: 10px;
             color: white;
             cursor: pointer;
             transition: var(--transition);
+            font-size: 0.9rem;
         }
         
         .confirm-delete-btn:hover {
             background: #d70015;
         }
 
-        /* Responsive */
+        /* Mobile Responsive */
         @media (max-width: 768px) {
+            .container {
+                padding: 0 12px;
+            }
+            
+            header {
+                padding: 10px 0;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .logo {
+                font-size: 1.1rem;
+            }
+            
+            .user-section {
+                flex: 1;
+                justify-content: flex-end;
+            }
+            
+            .user-profile .user-info {
+                display: none;
+            }
+            
+            .credit-bar span:first-child {
+                display: none;
+            }
+            
             .main-layout {
                 flex-direction: column;
+                gap: 12px;
+                min-height: calc(100vh - 120px);
             }
             
             .sidebar {
                 width: 100%;
                 order: 2;
+                max-height: 200px;
             }
             
             .chat-area {
                 order: 1;
+                min-height: 60vh;
+            }
+            
+            .chat-messages {
+                max-height: calc(100vh - 400px);
+                padding: 12px;
             }
             
             .message {
                 max-width: 90%;
             }
             
-            .prompts-container {
-                grid-template-columns: 1fr;
+            .welcome-screen {
+                padding: 30px 16px;
             }
             
-            header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
+            .welcome-title {
+                font-size: 1.5rem;
             }
             
-            .user-section {
-                justify-content: center;
+            .nav-buttons {
+                gap: 6px;
             }
             
-            .chat-messages {
-                max-height: calc(100vh - 350px);
+            .nav-btn {
+                padding: 6px 10px;
+                font-size: 0.8rem;
             }
+        }
+
+        @media (max-width: 480px) {
+            .user-profile {
+                display: none;
+            }
+            
+            .credit-bar {
+                font-size: 0.8rem;
+            }
+            
+            .chat-input-wrapper {
+                gap: 6px;
+                padding: 6px;
+            }
+            
+            .file-upload-btn, .send-btn {
+                padding: 8px;
+                min-width: 40px;
+                height: 40px;
+            }
+            
+            .modal {
+                padding: 16px;
+                margin: 10px;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--card-bg);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-light);
         }
     </style>
 </head>
@@ -939,21 +969,15 @@
                 <button class="nav-btn" id="challengesBtn" title="Challenges">
                     <i class="fas fa-tasks"></i>
                 </button>
-                <button class="nav-btn" id="buyCreditsBtn" title="Buy Credits">
-                    <i class="fas fa-shopping-cart"></i>
-                </button>
                 <div class="settings-menu" id="settingsMenu">
                     <button class="nav-btn" id="settingsBtn" title="Settings">
                         <i class="fas fa-cog"></i>
                     </button>
                     <div class="settings-dropdown">
-                        <button class="settings-item" id="profileSettingsBtn">
-                            <i class="fas fa-user-cog"></i> Profile Settings
-                        </button>
                         <button class="settings-item" id="appearanceSettingsBtn">
                             <i class="fas fa-palette"></i> Appearance
                         </button>
-                        <button class="settings-item" id="deleteAccountBtn">
+                        <button class="settings-item delete" id="deleteAccountBtn">
                             <i class="fas fa-user-slash"></i> Delete Account
                         </button>
                     </div>
@@ -970,7 +994,7 @@
         <div class="main-layout">
             <!-- Sidebar -->
             <div class="sidebar">
-                <button class="nav-btn" id="newChatBtn" style="margin-bottom: 20px;">
+                <button class="nav-btn" id="newChatBtn" style="margin-bottom: 16px;">
                     <i class="fas fa-plus"></i> New Chat
                 </button>
                 <div class="chat-history" id="chatHistory">
@@ -1007,6 +1031,9 @@
                 <!-- Chat Input -->
                 <div class="chat-input-container">
                     <div class="chat-input-wrapper">
+                        <button class="file-upload-btn" id="fileUploadBtn" title="Upload File">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
                         <textarea 
                             class="chat-input" 
                             id="chatInput" 
@@ -1026,38 +1053,6 @@
     <footer class="footer">
         <p>හො.ම.ත.ග.යු අපිට වරදින්න පුලුවන් !</p>
     </footer>
-
-    <!-- Payment Modal -->
-    <div class="modal-overlay" id="paymentModal" style="display: none;">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 class="modal-title">Buy Credits</h2>
-                <button class="close-btn" id="closePaymentModal">&times;</button>
-            </div>
-            <p>Choose a credit package to continue using Hela Learn</p>
-            <div class="credit-packages">
-                <div class="credit-package" data-credits="100" data-price="2.99">
-                    <div class="package-credits">100 Credits</div>
-                    <div class="package-price">$2.99</div>
-                </div>
-                <div class="credit-package" data-credits="250" data-price="5.99">
-                    <div class="package-credits">250 Credits</div>
-                    <div class="package-price">$5.99</div>
-                </div>
-                <div class="credit-package" data-credits="500" data-price="9.99">
-                    <div class="package-credits">500 Credits</div>
-                    <div class="package-price">$9.99</div>
-                </div>
-                <div class="credit-package" data-credits="1000" data-price="15.99">
-                    <div class="package-credits">1000 Credits</div>
-                    <div class="package-price">$15.99</div>
-                </div>
-            </div>
-            <button class="payment-btn" id="googlePayBtn" disabled>
-                Pay with Apple Pay
-            </button>
-        </div>
-    </div>
 
     <!-- Challenges Modal -->
     <div class="modal-overlay" id="challengesModal" style="display: none;">
@@ -1091,116 +1086,11 @@
             </div>
         </div>
     </div>
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="script.js"></script>
-
-    <script>
-        // JavaScript for UI interactions
-        document.addEventListener('DOMContentLoaded', function() {
-            // Settings menu toggle
-            const settingsMenu = document.getElementById('settingsMenu');
-            const settingsBtn = document.getElementById('settingsBtn');
-            
-            settingsBtn.addEventListener('click', function() {
-                settingsMenu.classList.toggle('open');
-            });
-            
-            // Close settings menu when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!settingsMenu.contains(event.target)) {
-                    settingsMenu.classList.remove('open');
-                }
-            });
-            
-            // Account deletion modal
-            const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-            const deleteAccountModal = document.getElementById('deleteAccountModal');
-            const closeDeleteAccountModal = document.getElementById('closeDeleteAccountModal');
-            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-            
-            deleteAccountBtn.addEventListener('click', function() {
-                deleteAccountModal.style.display = 'flex';
-                settingsMenu.classList.remove('open');
-            });
-            
-            closeDeleteAccountModal.addEventListener('click', function() {
-                deleteAccountModal.style.display = 'none';
-            });
-            
-            cancelDeleteBtn.addEventListener('click', function() {
-                deleteAccountModal.style.display = 'none';
-            });
-            
-            // Payment modal interactions
-            const buyCreditsBtn = document.getElementById('buyCreditsBtn');
-            const paymentModal = document.getElementById('paymentModal');
-            const closePaymentModal = document.getElementById('closePaymentModal');
-            const creditPackages = document.querySelectorAll('.credit-package');
-            const googlePayBtn = document.getElementById('googlePayBtn');
-            
-            buyCreditsBtn.addEventListener('click', function() {
-                paymentModal.style.display = 'flex';
-            });
-            
-            closePaymentModal.addEventListener('click', function() {
-                paymentModal.style.display = 'none';
-            });
-            
-            creditPackages.forEach(pkg => {
-                pkg.addEventListener('click', function() {
-                    // Remove selected class from all packages
-                    creditPackages.forEach(p => p.classList.remove('selected'));
-                    // Add selected class to clicked package
-                    this.classList.add('selected');
-                    // Enable payment button
-                    googlePayBtn.disabled = false;
-                });
-            });
-            
-            // Challenges modal
-            const challengesBtn = document.getElementById('challengesBtn');
-            const challengesModal = document.getElementById('challengesModal');
-            const closeChallengesModal = document.getElementById('closeChallengesModal');
-            
-            challengesBtn.addEventListener('click', function() {
-                challengesModal.style.display = 'flex';
-            });
-            
-            closeChallengesModal.addEventListener('click', function() {
-                challengesModal.style.display = 'none';
-            });
-            
-            // Example prompts
-            const examplePromptBtns = document.querySelectorAll('.example-prompt-btn');
-            const chatInput = document.getElementById('chatInput');
-            
-            examplePromptBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const prompt = this.getAttribute('data-prompt');
-                    chatInput.value = prompt;
-                    chatInput.focus();
-                });
-            });
-            
-            // Auto-resize textarea
-            chatInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
-            });
-            
-            // Close modals when clicking on overlay
-            const modals = document.querySelectorAll('.modal-overlay');
-            modals.forEach(modal => {
-                modal.addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        this.style.display = 'none';
-                    }
-                });
-            });
-        });
-    </script>
 </body>
 </html>
