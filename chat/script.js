@@ -1069,7 +1069,7 @@ function displayAIResponse(content) {
 const API_CONFIG = {
     URL: 'https://endpoint.apilageai.lk/api/chat',
     KEY: 'apk_QngciclzfHi2yAfP3WvZgx68VbbONQTP',
-    MODEL: 'FREE'
+    MODEL: 'SUPER'
 };
 
 async function callAI(userMessage, attachedFiles = []) {
