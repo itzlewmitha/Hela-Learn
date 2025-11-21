@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hela Learn Login / Signup</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .auth-container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      width: 350px;
+      text-align: center;
+    }
+
+    .auth-title {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #333;
+    }
+
+    .auth-input {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      background: #5c4def;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .auth-btn:hover {
+      background: #4b3ed1;
+    }
+
+    .google-btn {
+      background: #db4437;
+    }
+
+    .google-btn:hover {
+      background: #c23321;
+    }
+
+    .auth-switch {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .auth-link {
+      color: #5c4def;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .error-message {
+      color: #db4437;
+      font-size: 14px;
+      height: 18px;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <h2 class="auth-title" id="authTitle">Sign In</h2>
+    <div class="error-message" id="authError"></div>
+    <input type="text" id="nameField" placeholder="Full Name" class="auth-input" style="display:none;">
+    <input type="email" id="authEmail" placeholder="Email Address" class="auth-input">
+    <input type="password" id="authPassword" placeholder="Password" class="auth-input">
+    <button class="auth-btn" id="authBtn">Sign In</button>
+    <button class="auth-btn google-btn" id="googleBtn">
+      <i class="fab fa-google"></i> Continue with Google
+    </button>
+    <div class="auth-switch">
+      <span id="authSwitchText">Don't have an account?</span>
+      <a class="auth-link" id="authSwitchLink">Create one</a>
+    </div>
+  </div>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkZ1COLT59ukLGzpv5lW3UZ8vQ9tEN1gw",
+      authDomain: "hela-code.firebaseapp.com",
+      projectId: "hela-code",
+      storageBucket: "hela-code.appspot.com",
+      messagingSenderId: "813299203715",
+      appId: "1:813299203715:web:910e7227cdd4a09ad1a5b6"
+    };
+
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // DOM elements
+    const authTitle = document.getElementById('authTitle');
+    const authBtn = document.getElementById('authBtn');
+    const authSwitchLink = document.getElementById('authSwitchLink');
+    const authSwitchText = document.getElementById('authSwitchText');
+    const nameField = document.getElementById('nameField');
+    const authEmail = document.getElementById('authEmail');
+    const authPassword = document.getElementById('authPassword');
+    const authError = document.getElementById('authError');
+    const googleBtn = document.getElementById('googleBtn');
+
+    let isSignUp = false;
+
+    authSwitchLink.addEventListener('click', () => {
+      isSignUp = !isSignUp;
+      if (isSignUp) {
+        nameField.style.display = 'block';
+        authBtn.textContent = 'Sign Up';
+        authTitle.textContent = 'Create Account';
+        authSwitchText.textContent = 'Already have an account?';
+        authSwitchLink.textContent = 'Sign In';
+      } else {
+        nameField.style.display = 'none';
+        authBtn.textContent = 'Sign In';
+        authTitle.textContent = 'Sign In';
+        authSwitchText.textContent = "Don't have an account?";
+        authSwitchLink.textContent = 'Create one';
+      }
+    });
+
+    authBtn.addEventListener('click', () => {
+      authError.textContent = '';
+      const email = authEmail.value.trim();
+      const password = authPassword.value.trim();
+      const name = nameField.value.trim();
+
+      if (isSignUp) {
+        if (!name) {
+          authError.textContent = 'Please enter your full name.';
+          return;
+        }
+        auth.createUserWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            return userCredential.user.updateProfile({ displayName: name });
+          })
+          .then(() => {
+            window.location.href = "https://helalearn.vercel.app/chat";
+          })
+          .catch((error) => {
+            authError.textContent = error.message;
+          });
+      } else {
+        auth.signInWithEmailAndPassword(email, password)
+          .then(() => {
+            window.location.href = "https://helalearn.vercel.app/chat";
+          })
+          .catch((error) => {
+            authError.textContent = error.message;
+          });
+      }
+    });
+
+    googleBtn.addEventListener('click', () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then(() => {
+          window.location.href = "https://helalearn.vercel.app/chat";
+        })
+        .catch((error) => {
+          authError.textContent = error.message;
+        });
+    });
+
+    // Redirect if user is already logged in
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        window.location.href = "https://helalearn.vercel.app/chat";
+      }
+    });
+  </script>
+</body>
+</html>
