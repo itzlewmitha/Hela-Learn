@@ -167,34 +167,39 @@ function applyTheme(theme) {
     const root = document.documentElement;
     
     if (theme === 'light') {
-root.style.setProperty('--primary', '#8B5FBF');          // Same purple – strong accent
-root.style.setProperty('--primary-light', '#C9A7E8');    // Softer, lighter purple
-root.style.setProperty('--primary-dark', '#6D3F9F');     // Slightly darker accent
-
-root.style.setProperty('--text', '#1A1A1A');             // Dark text for readability
-root.style.setProperty('--text-light', '#4A4A4A');       // Gray text for secondary UI
-
-root.style.setProperty('--background', '#F7F5FB');       // Light purple-tinted background
-root.style.setProperty('--card-bg', '#FFFFFF');          // Clean white cards
-root.style.setProperty('--card-hover', '#F0E9FA');       // Soft hover effect
-
-root.style.setProperty('--shadow', '0 4px 12px rgba(0, 0, 0, 0.1)');  
-root.style.setProperty('--border', '#E0D8EF');           // Border with subtle purple tone
-
+        root.style.setProperty('--primary', '#8B5FBF');
+        root.style.setProperty('--primary-light', '#C9A7E8');
+        root.style.setProperty('--primary-dark', '#6D3F9F');
+        root.style.setProperty('--text', '#1A1A1A');
+        root.style.setProperty('--text-light', '#4A4A4A');
+        root.style.setProperty('--background', '#F7F5FB');
+        root.style.setProperty('--card-bg', '#FFFFFF');
+        root.style.setProperty('--card-hover', '#F0E9FA');
+        root.style.setProperty('--shadow', '0 4px 12px rgba(0, 0, 0, 0.1)');
+        root.style.setProperty('--border', '#E0D8EF');
     } else {
+        // Dark theme - ensure all variables are properly set
         root.style.setProperty('--primary', '#8B5FBF');
         root.style.setProperty('--primary-light', '#9D76C1');
         root.style.setProperty('--primary-dark', '#6D3F9F');
+        root.style.setProperty('--primary-hover', '#A98ACA');
         root.style.setProperty('--text', '#FFFFFF');
         root.style.setProperty('--text-light', '#B0B0B0');
         root.style.setProperty('--background', '#121212');
         root.style.setProperty('--card-bg', '#1E1E1E');
         root.style.setProperty('--card-hover', '#252525');
         root.style.setProperty('--shadow', '0 4px 12px rgba(0, 0, 0, 0.3)');
+        root.style.setProperty('--success', '#4CAF50');
+        root.style.setProperty('--warning', '#ff9800');
+        root.style.setProperty('--error', '#f44336');
         root.style.setProperty('--border', '#333333');
     }
+    
+    // Force a repaint to ensure theme is applied
+    document.body.style.display = 'none';
+    document.body.offsetHeight; // Trigger reflow
+    document.body.style.display = '';
 }
-
 // ==================== TYPING INDICATOR FUNCTIONS ====================
 function removeTypingIndicator() {
     const typing = document.getElementById('typing-indicator');
