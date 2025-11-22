@@ -530,6 +530,7 @@ function displayNotesInChat(notesContent, subject, grade, topic) {
     scrollToBottom();
 }
 
+// ==================== WORKING PDF GENERATION ====================
 async function generatePDF(notesContent, subject, grade, topic) {
     try {
         // Create a temporary div to hold formatted content
@@ -539,19 +540,8 @@ async function generatePDF(notesContent, subject, grade, topic) {
         // Get clean text for PDF
         const cleanContent = tempDiv.textContent || tempDiv.innerText || '';
         
-        // Create PDF content
-        const pdfContent = createPDFContent(cleanContent, subject, grade, topic);
-        
-        // Create and download PDF
-        const blob = new Blob([pdfContent], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `HelaLearn_Notes_${subject}_Grade${grade}_${topic.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        // Create a proper PDF using the browser's print functionality
+        await createPrintablePDF(cleanContent, subject, grade, topic);
         
     } catch (error) {
         console.error('Error generating PDF:', error);
@@ -560,61 +550,338 @@ async function generatePDF(notesContent, subject, grade, topic) {
     }
 }
 
-function createPDFContent(content, subject, grade, topic) {
-    // Simple PDF content structure
-    // In a real implementation, you'd use a PDF library like jsPDF
-    const pdfStructure = `
-%PDF-1.4
-1 0 obj
-<< /Type /Catalog /Pages 2 0 R >>
-endobj
+async function createPrintablePDF(content, subject, grade, topic) {
+    // Create a printable HTML document
+    const printWindow = window.open('', '_blank');
+    const timestamp = new Date().toLocaleDateString();
+    
+    const pdfHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hela Learn Notes - ${topic}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: white;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #8B5FBF;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .title {
+            color: #8B5FBF;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .meta-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .meta-item {
+            background: #f8f5ff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #6D3F9F;
+        }
+        
+        .content {
+            font-size: 1rem;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            color: #8B5FBF;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            border-left: 4px solid #8B5FBF;
+            padding-left: 12px;
+        }
+        
+        .bullet-points {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .bullet-points li {
+            padding: 6px 0;
+            padding-left: 24px;
+            position: relative;
+        }
+        
+        .bullet-points li:before {
+            content: "•";
+            color: #8B5FBF;
+            font-weight: bold;
+            position: absolute;
+            left: 8px;
+        }
+        
+        .definition {
+            background: #f8f5ff;
+            border-left: 3px solid #8B5FBF;
+            padding: 12px 16px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        
+        .key-term {
+            font-weight: 600;
+            color: #6D3F9F;
+        }
+        
+        .summary {
+            background: #e8f5e8;
+            border: 1px solid #4CAF50;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        @media print {
+            body {
+                padding: 20px;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+        
+        .notes-space {
+            border: 1px dashed #ccc;
+            padding: 20px;
+            margin: 15px 0;
+            background: #f9f9f9;
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">Hela Learn</h1>
+        <h2 class="subtitle">Study Notes: ${topic}</h2>
+        <div class="meta-info">
+            <div class="meta-item"><strong>Subject:</strong> ${subject}</div>
+            <div class="meta-item"><strong>Grade:</strong> ${grade}</div>
+            <div class="meta-item"><strong>Date:</strong> ${timestamp}</div>
+        </div>
+    </div>
+    
+    <div class="content">
+        ${formatContentForPDF(content)}
+    </div>
+    
+    <div class="footer">
+        <p>Generated by Hela Learn - Sri Lanka's AI Learning Assistant</p>
+        <p>© ${new Date().getFullYear()} Hela Learn. All rights reserved.</p>
+    </div>
+    
+    <script>
+        // Auto-print and close
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                window.close();
+            }, 1000);
+        }, 500);
+    </script>
+</body>
+</html>`;
 
-2 0 obj
-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
-endobj
+    printWindow.document.write(pdfHTML);
+    printWindow.document.close();
+    
+    // Wait for the window to load before printing
+    printWindow.onload = function() {
+        setTimeout(() => {
+            printWindow.print();
+            // Don't close automatically - let user choose to print or save as PDF
+        }, 1000);
+    };
+}
 
-3 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R >>
-endobj
+function formatContentForPDF(content) {
+    // Convert the AI response into structured PDF content
+    const lines = content.split('\n');
+    let formattedHTML = '';
+    let currentSection = '';
+    
+    lines.forEach(line => {
+        line = line.trim();
+        
+        if (!line) return;
+        
+        // Detect section headers (lines that might be headers)
+        if (line.match(/^[0-9]+\.\s+.+/) || 
+            line.match(/^[A-Z][A-Za-z\s]+:$/) || 
+            line.match(/^#{1,3}\s+.+/) ||
+            line.length < 50 && line.endsWith(':')) {
+            
+            // Close previous section
+            if (currentSection) {
+                formattedHTML += `</div>`;
+            }
+            
+            // Start new section
+            formattedHTML += `
+                <div class="section">
+                    <h3 class="section-title">${line.replace(/^#+\s*/, '').replace(':', '')}</h3>
+            `;
+            currentSection = line;
+            
+        } else if (line.startsWith('- ') || line.startsWith('• ')) {
+            // Bullet points
+            if (!formattedHTML.includes('<ul class="bullet-points">')) {
+                formattedHTML += `<ul class="bullet-points">`;
+            }
+            const point = line.replace(/^[-•]\s+/, '');
+            formattedHTML += `<li>${point}</li>`;
+            
+        } else if (line.match(/^[A-Z][^.]{0,100}:/) || line.includes('Definition:') || line.includes('means:')) {
+            // Definitions or key terms
+            formattedHTML += `<div class="definition"><span class="key-term">${line}</span></div>`;
+            
+        } else if (line.includes('Summary') || line.includes('CONCLUSION') || line.includes('Key Points')) {
+            // Summary section
+            formattedHTML += `</div><div class="summary"><h3 class="section-title">${line}</h3>`;
+            
+        } else {
+            // Regular paragraph
+            if (line.length > 20) {
+                formattedHTML += `<p>${line}</p>`;
+            }
+        }
+    });
+    
+    // Close the last section
+    if (currentSection) {
+        formattedHTML += `</div>`;
+    }
+    
+    // Add notes space at the end
+    formattedHTML += `
+        <div class="section">
+            <h3 class="section-title">Your Notes</h3>
+            <div class="notes-space">
+                <p><em>Add your own notes, questions, or observations here...</em></p>
+            </div>
+        </div>
+    `;
+    
+    return formattedHTML;
+}
 
-4 0 obj
-<< /Length 100 >>
-stream
-BT
-/F1 12 Tf
-50 750 Td
-(Hela Learn - Study Notes) Tj
-0 -20 Td
-(Subject: ${subject}) Tj
-0 -20 Td
-(Grade: ${grade}) Tj
-0 -20 Td
-(Topic: ${topic}) Tj
-0 -40 Td
-(${content.substring(0, 500)}...) Tj
-ET
-endstream
-endobj
+// Alternative: Simple text-based PDF using jsPDF (if you want to include the library)
+async function generatePDFWithjsPDF(notesContent, subject, grade, topic) {
+    try {
+        // Check if jsPDF is available
+        if (typeof jspdf === 'undefined') {
+            // Load jsPDF from CDN
+            await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+        }
+        
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Add header
+        doc.setFontSize(20);
+        doc.setTextColor(139, 95, 191);
+        doc.text('Hela Learn - Study Notes', 20, 30);
+        
+        doc.setFontSize(16);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Topic: ${topic}`, 20, 50);
+        doc.text(`Subject: ${subject} | Grade: ${grade}`, 20, 60);
+        
+        // Add content
+        const lines = doc.splitTextToSize(notesContent, 170);
+        doc.setFontSize(12);
+        doc.text(lines, 20, 80);
+        
+        // Add footer
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(10);
+            doc.text(`Page ${i} of ${pageCount} - Generated by Hela Learn`, 20, 280);
+        }
+        
+        // Save the PDF
+        doc.save(`HelaLearn_Notes_${subject}_Grade${grade}_${topic.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+        
+    } catch (error) {
+        console.error('Error with jsPDF:', error);
+        // Fallback to printable version
+        await createPrintablePDF(notesContent, subject, grade, topic);
+    }
+}
 
-xref
-0 5
-0000000000 65535 f 
-0000000009 00000 n 
-0000000058 00000 n 
-0000000115 00000 n 
-0000000190 00000 n 
-trailer
-<< /Size 5 /Root 1 0 R >>
-startxref
-${content.length}
-%%EOF
-`;
-
-    return pdfStructure;
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
 }
 
 function downloadTextFile(content, subject, grade, topic) {
-    const blob = new Blob([content], { type: 'text/plain' });
+    const formattedContent = `
+HELA LEARN - STUDY NOTES
+========================
+
+Topic: ${topic}
+Subject: ${subject}
+Grade: ${grade}
+Date: ${new Date().toLocaleDateString()}
+
+${content}
+
+---
+Generated by Hela Learn - Sri Lanka's AI Learning Assistant
+© ${new Date().getFullYear()} Hela Learn. All rights reserved.
+    `.trim();
+    
+    const blob = new Blob([formattedContent], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -623,55 +890,110 @@ function downloadTextFile(content, subject, grade, topic) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    
+    showNotification('Text notes downloaded!', 'success');
 }
 
-async function regeneratePDF(subject, grade, topic) {
-    if (!await useCredits(1, 'pdf_regeneration')) {
-        return;
-    }
-    
-    // Get the last notes content from chat (you might want to store this in state)
-    const notePrompt = `Regenerate the PDF for: ${subject}, Grade ${grade}, Topic: ${topic}`;
-    showNotification('Regenerating PDF...', 'success');
-    
-    // You can store the last generated notes in state for regeneration
-    // For now, we'll just create a simple PDF
-    const content = `Regenerated notes for ${topic} (${subject} - Grade ${grade})`;
-    await generatePDF(content, subject, grade, topic);
-}
-
-// Add credit cost for note generation
-const CREDIT_COSTS = {
-    CHAT_MESSAGE: 1,
-    NEW_CHAT: 0,
-    FILE_ANALYSIS: 2,
-    NOTE_GENERATION: 3,  // Add this
-    PDF_REGENERATION: 1   // Add this
-};
-
-// Update the initialize function to include note generator setup
-async function startApplication() {
+// Update the generateStudyNotes function to use the working PDF generator
+async function generateStudyNotes() {
     try {
-        console.log('Starting Hela Learn application...');
+        const subject = document.getElementById('noteSubject').value;
+        const grade = document.getElementById('noteGrade').value;
+        const topic = document.getElementById('noteTopic').value;
+        const noteType = document.getElementById('noteType').value;
+        const instructions = document.getElementById('noteInstructions').value;
+
+        if (!subject || !grade || !topic) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+
+        // Check credits
+        if (!await useCredits(3, 'note_generation')) {
+            return;
+        }
+
+        const generateBtn = document.getElementById('generateNoteBtn');
+        const originalText = generateBtn.innerHTML;
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        generateBtn.disabled = true;
+
+        // Create the prompt for AI
+        const notePrompt = createNotePrompt(subject, grade, topic, noteType, instructions);
         
-        const elementsReady = await initializeElements();
-        if (!elementsReady) throw new Error('Failed to initialize DOM elements');
+        // Show typing indicator
+        showTypingIndicator();
+
+        // Call AI to generate notes
+        const notesContent = await callAI(notePrompt);
+        removeTypingIndicator();
+
+        if (!notesContent || notesContent.includes("connection issues")) {
+            throw new Error('Failed to generate notes content');
+        }
+
+        // Display notes in chat
+        displayNotesInChat(notesContent, subject, grade, topic);
         
-        setupEventListeners();
-        setupChallengesModal();
-        setupFileUpload();
-        setupNoteGenerator();  // Add this line
-        initializeTheme();
-        await initializeApp();
+        // Generate and download PDF
+        await generatePDF(notesContent, subject, grade, topic);
         
-        showNotification('Hela Learn loaded successfully!');
+        // Close modal
+        document.getElementById('noteGeneratorModal').style.display = 'none';
         
+        // Reset form
+        document.querySelector('.note-generator-form').reset();
+
+        showNotification('Study notes generated successfully!', 'success');
+
     } catch (error) {
-        console.error('Failed to start application:', error);
-        showNotification('Failed to load app. Please refresh the page.', 'error');
+        console.error('Error generating notes:', error);
+        showNotification('Error generating notes. Please try again.', 'error');
+    } finally {
+        const generateBtn = document.getElementById('generateNoteBtn');
+        if (generateBtn) {
+            generateBtn.innerHTML = '<i class="fas fa-download"></i> Generate & Download PDF';
+            generateBtn.disabled = false;
+        }
     }
 }
 
+// Update the note prompt to get better structured content
+function createNotePrompt(subject, grade, topic, noteType, instructions) {
+    const noteTypeMap = {
+        'short_notes': 'concise short notes with clear headings and bullet points',
+        'summary': 'comprehensive summary with key points',
+        'revision': 'exam-focused revision notes with important concepts',
+        'detailed': 'detailed study notes with explanations',
+        'mindmap': 'structured hierarchical notes'
+    };
+
+    let prompt = `Create ${noteTypeMap[noteType] || 'well-structured study notes'} for:
+
+SUBJECT: ${subject}
+GRADE LEVEL: Grade ${grade} 
+TOPIC/CHAPTER: ${topic}
+
+Please structure the response with:
+1. Clear section headings
+2. Bullet points for key information
+3. Important definitions highlighted
+4. Key dates or events (if historical)
+5. A summary section at the end
+6. Study tips if relevant
+
+Format requirements:
+- Use headings like "1. Main Topic", "2. Key Concepts", etc.
+- Use bullet points with "- " for lists
+- Highlight definitions with "Definition: "
+- Keep it organized and easy to read
+
+${instructions ? `SPECIAL INSTRUCTIONS: ${instructions}` : ''}
+
+Make sure the content is appropriate for a Grade ${grade} student and covers the essential information about ${topic}.`;
+
+    return prompt;
+}
 // ==================== CODE BLOCK FUNCTIONS ====================
 function copyToClipboard(button) {
     const codeBlock = button.closest('.code-block');
