@@ -2044,7 +2044,7 @@ async function initializeApp() {
     }
 }
 // ==================== START APPLICATION ====================
-sync function startApplication() {
+async function startApplication() {
     try {
         const elementsReady = await initializeElements();
         if (!elementsReady) throw new Error('Failed to initialize DOM elements');
