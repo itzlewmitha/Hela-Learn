@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hela Learn - Sign In</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #8B5FBF;
+            --primary-light: #9D76C1;
+            --text: #FFFFFF;
+            --text-light: #B0B0B0;
+            --background: #121212;
+            --card-bg: #1E1E1E;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+            --error: #f44336;
+            --success: #4CAF50;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .auth-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .auth-title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .auth-subtitle {
+            color: var(--text-light);
+            margin-bottom: 30px;
+        }
+        
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .auth-input {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 15px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+        
+        .auth-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 10px rgba(139, 95, 191, 0.4);
+        }
+        
+        .auth-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 95, 191, 0.4);
+        }
+        
+        .auth-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .google-btn {
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .google-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .error-message {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid var(--error);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--error);
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .auth-switch {
+            margin-top: 20px;
+            color: var(--text-light);
+        }
+        
+        .auth-link {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .auth-link:hover {
+            text-decoration: underline;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <span>Hela Learn</span>
+        </div>
+        
+        <h1 class="auth-title">Welcome Back</h1>
+        <p class="auth-subtitle">Sign in to continue learning</p>
+        
+        <div class="error-message" id="authError"></div>
+        
+        <div class="auth-form">
+            <input type="email" id="authEmail" placeholder="Email Address" class="auth-input" required>
+            <input type="password" id="authPassword" placeholder="Password" class="auth-input" required>
+            <button class="auth-btn" id="authBtn">
+                <span id="authBtnText">Sign In</span>
+            </button>
+            <button class="auth-btn google-btn" id="googleBtn">
+                <i class="fab fa-google"></i>
+                <span>Continue with Google</span>
+            </button>
+        </div>
+        
+        <div class="auth-switch">
+            <span>Don't have an account?</span>
+            <a class="auth-link" id="switchToSignUp">Sign up</a>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAkZ1COLT59ukLGzpv5lW3UZ8vQ9tEN1gw",
+            authDomain: "hela-code.firebaseapp.com",
+            projectId: "hela-code",
+            storageBucket: "hela-code.appspot.com",
+            messagingSenderId: "813299203715",
+            appId: "1:813299203715:web:910e7227cdd4a09ad1a5b6"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+        let isSignUp = false;
+
+        // DOM Elements
+        const elements = {
+            authEmail: document.getElementById('authEmail'),
+            authPassword: document.getElementById('authPassword'),
+            authBtn: document.getElementById('authBtn'),
+            authBtnText: document.getElementById('authBtnText'),
+            googleBtn: document.getElementById('googleBtn'),
+            authError: document.getElementById('authError'),
+            switchToSignUp: document.getElementById('switchToSignUp'),
+            authTitle: document.querySelector('.auth-title'),
+            authSubtitle: document.querySelector('.auth-subtitle')
+        };
+
+        // Event Listeners
+        elements.authBtn.addEventListener('click', handleAuth);
+        elements.googleBtn.addEventListener('click', handleGoogleAuth);
+        elements.switchToSignUp.addEventListener('click', toggleAuthMode);
+
+        function toggleAuthMode() {
+            isSignUp = !isSignUp;
+            elements.authTitle.textContent = isSignUp ? 'Create Account' : 'Welcome Back';
+            elements.authSubtitle.textContent = isSignUp ? 'Sign up to start learning' : 'Sign in to continue learning';
+            elements.authBtnText.textContent = isSignUp ? 'Sign Up' : 'Sign In';
+            elements.switchToSignUp.textContent = isSignUp ? 'Sign in' : 'Sign up';
+            hideError();
+        }
+
+        function showError(message) {
+            elements.authError.textContent = message;
+            elements.authError.style.display = 'block';
+        }
+
+        function hideError() {
+            elements.authError.style.display = 'none';
+        }
+
+        function setLoading(loading) {
+            if (loading) {
+                elements.authBtn.disabled = true;
+                elements.googleBtn.disabled = true;
+                elements.authBtnText.innerHTML = '<div class="loading"></div>';
+            } else {
+                elements.authBtn.disabled = false;
+                elements.googleBtn.disabled = false;
+                elements.authBtnText.textContent = isSignUp ? 'Sign Up' : 'Sign In';
+            }
+        }
+
+        async function handleAuth() {
+            const email = elements.authEmail.value.trim();
+            const password = elements.authPassword.value;
+
+            if (!email || !password) {
+                showError('Please fill in all fields');
+                return;
+            }
+
+            if (isSignUp && password.length < 6) {
+                showError('Password must be at least 6 characters');
+                return;
+            }
+
+            setLoading(true);
+            hideError();
+
+            try {
+                if (isSignUp) {
+                    await auth.createUserWithEmailAndPassword(email, password);
+                } else {
+                    await auth.signInWithEmailAndPassword(email, password);
+                }
+                
+                // Redirect to chat page
+                window.location.href = '/chat/';
+            } catch (error) {
+                showError(error.message.replace('Firebase:', '').trim());
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function handleGoogleAuth() {
+            setLoading(true);
+            hideError();
+
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                await auth.signInWithPopup(provider);
+                
+                // Redirect to chat page
+                window.location.href = '/chat/';
+            } catch (error) {
+                showError(error.message.replace('Firebase:', '').trim());
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // Check if user is already logged in
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                window.location.href = '/chat/';
+            }
+        });
+
+        // Enter key support
+        elements.authPassword.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleAuth();
+            }
+        });
+    </script>
+</body>
+</html>
