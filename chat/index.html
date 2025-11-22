@@ -950,7 +950,7 @@
                 margin: 10px;
             }
         }
-        /* Note Generator Styles */
+       /* Note Generator Styles */
 .note-generator-form {
     display: flex;
     flex-direction: column;
@@ -970,7 +970,7 @@
     font-size: 0.9rem;
 }
 
-.form-input, .form-select {
+.form-input, .form-select, textarea.form-input {
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 8px;
@@ -979,12 +979,19 @@
     font-size: 1rem;
     transition: var(--transition);
     font-family: inherit;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.form-input:focus, .form-select:focus {
+.form-input:focus, .form-select:focus, textarea.form-input:focus {
     border-color: var(--primary);
     outline: none;
     box-shadow: 0 0 10px rgba(139, 95, 191, 0.4);
+}
+
+textarea.form-input {
+    min-height: 80px;
+    resize: vertical;
 }
 
 .form-actions {
@@ -994,10 +1001,54 @@
     margin-top: 20px;
 }
 
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: inherit;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(139, 95, 191, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-secondary {
+    background: var(--card-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+
+.btn-secondary:hover {
+    background: var(--card-hover);
+    border-color: var(--primary);
+}
+
 /* PDF Download Button in Chat */
-/* Add to your CSS */
 .pdf-download-btn {
-    background: linear-gradient(135deg, #8B5FBF, #9D76C1);
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
     color: white;
     border: none;
     border-radius: 8px;
@@ -1007,17 +1058,19 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     margin-top: 12px;
     font-weight: 500;
+    text-decoration: none;
 }
 
 .pdf-download-btn:hover {
-    background: linear-gradient(135deg, #7a4fa8, #8a65b0);
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(139, 95, 191, 0.3);
 }
 
+/* Note Preview in Chat */
 .note-preview {
     background: rgba(139, 95, 191, 0.08);
     border: 1px solid rgba(139, 95, 191, 0.2);
@@ -1044,6 +1097,9 @@
 .note-preview-meta {
     font-size: 0.85rem;
     color: var(--text-light);
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .note-preview-content {
@@ -1055,8 +1111,9 @@
     background: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
     margin-bottom: 12px;
+    font-size: 0.9rem;
 }
-/* Note Preview in Chat */
+
 .note-section {
     margin-bottom: 16px;
 }
@@ -1066,54 +1123,279 @@
     color: var(--primary-light);
     margin-bottom: 8px;
     font-size: 1rem;
+    border-left: 3px solid var(--primary);
+    padding-left: 12px;
 }
 
 .note-bullet-points {
     list-style-type: none;
     padding-left: 0;
+    margin: 8px 0;
 }
 
 .note-bullet-points li {
     padding: 4px 0;
     padding-left: 20px;
     position: relative;
+    line-height: 1.4;
 }
 
 .note-bullet-points li:before {
     content: "•";
     color: var(--primary);
+    font-weight: bold;
     position: absolute;
     left: 8px;
 }
 
 .note-definition {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(139, 95, 191, 0.1);
     border-left: 3px solid var(--primary);
     padding: 8px 12px;
     margin: 8px 0;
     border-radius: 4px;
+    font-size: 0.9rem;
 }
 
 .note-timeline {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    margin: 12px 0;
 }
 
 .timeline-item {
     display: flex;
     gap: 12px;
     padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .timeline-year {
     font-weight: 600;
     color: var(--primary);
     min-width: 80px;
+    font-size: 0.9rem;
 }
 
 .timeline-event {
     flex: 1;
+    font-size: 0.9rem;
+}
+
+.note-summary {
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+}
+
+.note-summary-title {
+    font-weight: 600;
+    color: var(--success);
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+/* Modal specific styles for note generator */
+#noteGeneratorModal .modal {
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#noteGeneratorModal .modal-header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+    margin-bottom: 0;
+}
+
+#noteGeneratorModal .modal-title {
+    color: var(--primary);
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+/* File upload button styling for note generator button */
+#noteGeneratorBtn {
+    background: transparent;
+    border: none;
+    padding: 10px 12px;
+    color: var(--text-light);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: var(--transition);
+    font-size: 1rem;
+}
+
+#noteGeneratorBtn:hover {
+    background: rgba(139, 95, 191, 0.1);
+    color: var(--primary);
+}
+
+/* Scrollbar styling for note preview */
+.note-preview-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.note-preview-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+
+.note-preview-content::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 3px;
+}
+
+.note-preview-content::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-light);
+}
+
+/* Responsive styles for note generator */
+@media (max-width: 768px) {
+    .note-generator-form {
+        gap: 16px;
+    }
+    
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+    
+    .btn-primary, .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .note-preview-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .note-preview-meta {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .note-preview-content {
+        max-height: 150px;
+        font-size: 0.85rem;
+    }
+    
+    #noteGeneratorModal .modal {
+        margin: 20px;
+        max-width: calc(100vw - 40px);
+    }
+}
+
+@media (max-width: 480px) {
+    .note-preview {
+        padding: 12px;
+    }
+    
+    .note-preview-title {
+        font-size: 1rem;
+    }
+    
+    .pdf-download-btn {
+        width: 100%;
+        justify-content: center;
+        font-size: 0.8rem;
+    }
+    
+    .form-input, .form-select, textarea.form-input {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Animation for note generation */
+@keyframes noteGenerate {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.note-preview {
+    animation: noteGenerate 0.3s ease-out;
+}
+
+/* Loading state for generate button */
+.generate-loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.generate-loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Success state animation */
+.note-success {
+    animation: successPulse 0.6s ease-in-out;
+}
+
+@keyframes successPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+/* Error state */
+.note-error {
+    border-color: var(--error) !important;
+    background: rgba(244, 67, 54, 0.05) !important;
+}
+
+/* Selection dropdown styling */
+select.form-input {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238B5FBF' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    padding-right: 40px;
+}
+
+/* Required field indicator */
+.form-label.required::after {
+    content: " *";
+    color: var(--error);
+}
+
+/* Character counter for textarea */
+.char-counter {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    text-align: right;
+    margin-top: 4px;
+}
+
+.char-counter.warning {
+    color: var(--warning);
+}
+
+.char-counter.error {
+    color: var(--error);
 }
 
         /* Scrollbar Styling */
@@ -1347,6 +1629,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
