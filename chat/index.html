@@ -1553,47 +1553,51 @@ select.form-input {
         </div>
         
         <div class="note-generator-form">
+            <!-- Grade Level Selection -->
             <div class="form-group">
-                <label class="form-label">Subject</label>
-                <select class="form-input" id="noteSubject">
-                    <option value="">Select Subject</option>
-                    <option value="history">History</option>
-                    <option value="science">Science</option>
-                    <option value="mathematics">Mathematics</option>
-                    <option value="english">English Literature</option>
-                    <option value="biology">Biology</option>
-                    <option value="chemistry">Chemistry</option>
-                    <option value="physics">Physics</option>
-                    <option value="geography">Geography</option>
-                    <option value="civics">Civics</option>
-                    <option value="sinhala">Sinhala</option>
-                    <option value="tamil">Tamil</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Grade Level</label>
-                <select class="form-input" id="noteGrade">
+                <label class="form-label required">Grade Level</label>
+                <select class="form-input" id="noteGrade" required>
                     <option value="">Select Grade</option>
                     <option value="6">Grade 6</option>
                     <option value="7">Grade 7</option>
                     <option value="8">Grade 8</option>
                     <option value="9">Grade 9</option>
-                    <option value="10">Grade 10</option>
-                    <option value="11">Grade 11</option>
-                    <option value="12">Grade 12</option>
-                    <option value="13">Grade 13</option>
-                    <option value="university">University</option>
+                    <option value="10">Grade 10 (O/L)</option>
+                    <option value="11">Grade 11 (O/L)</option>
+                    <option value="12">Grade 12 (A/L)</option>
+                    <option value="13">Grade 13 (A/L)</option>
                 </select>
             </div>
-            
-            <div class="form-group">
-                <label class="form-label">Topic/Chapter</label>
-                <input type="text" class="form-input" id="noteTopic" 
-                       placeholder="e.g., French Revolution, Cellular Respiration, The Great Gatsby">
+
+            <!-- Stream Selection (for A/L) -->
+            <div class="form-group" id="streamGroup" style="display: none;">
+                <label class="form-label required">A/L Stream</label>
+                <select class="form-input" id="noteStream">
+                    <option value="">Select Stream</option>
+                    <option value="science">Science Stream</option>
+                    <option value="commerce">Commerce Stream</option>
+                    <option value="arts">Arts/Humanities Stream</option>
+                    <option value="technology">Technology Stream</option>
+                    <option value="aesthetic">Aesthetic Stream</option>
+                </select>
             </div>
-            
+
+            <!-- Subject Selection -->
+            <div class="form-group">
+                <label class="form-label required">Subject</label>
+                <select class="form-input" id="noteSubject" required>
+                    <option value="">Select Grade first</option>
+                </select>
+            </div>
+
+            <!-- Topic/Chapter Input -->
+            <div class="form-group">
+                <label class="form-label required">Topic/Chapter</label>
+                <input type="text" class="form-input" id="noteTopic" 
+                       placeholder="e.g., French Revolution, Cellular Respiration, Accounting Principles" required>
+            </div>
+
+            <!-- Note Type -->
             <div class="form-group">
                 <label class="form-label">Note Type</label>
                 <select class="form-input" id="noteType">
@@ -1602,15 +1606,28 @@ select.form-input {
                     <option value="revision">Revision Notes</option>
                     <option value="detailed">Detailed Notes</option>
                     <option value="mindmap">Mind Map</option>
+                    <option value="past_paper">Past Paper Answers</option>
                 </select>
             </div>
-            
+
+            <!-- Language Selection -->
             <div class="form-group">
-                <label class="form-label">Additional Instructions (Optional)</label>
-                <textarea class="form-input" id="noteInstructions" 
-                         placeholder="Any specific requirements..."></textarea>
+                <label class="form-label">Language</label>
+                <select class="form-input" id="noteLanguage">
+                    <option value="english">English</option>
+                    <option value="sinhala">සිංහල (Sinhala)</option>
+                    <option value="tamil">தமிழ் (Tamil)</option>
+                </select>
             </div>
-            
+
+            <!-- Additional Instructions -->
+            <div class="form-group">
+                <label class="form-label">Additional Instructions</label>
+                <textarea class="form-input" id="noteInstructions" 
+                         placeholder="Any specific requirements, focus areas, or exam tips..."></textarea>
+                <div class="char-counter" id="instructionsCounter">0/500</div>
+            </div>
+
             <div class="form-actions">
                 <button class="btn-secondary" id="cancelNoteBtn">Cancel</button>
                 <button class="btn-primary" id="generateNoteBtn">
@@ -1629,6 +1646,7 @@ select.form-input {
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
