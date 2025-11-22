@@ -263,7 +263,6 @@ async function processFile(file) {
         
         state.uploadedFiles.push(fileData);
         state.userProgress.stats.filesUploaded++;
-        checkChallenges();
         
         // Show file preview in chat input area
         showFilePreview(fileData);
@@ -479,7 +478,6 @@ async function useCredits(cost, action) {
             state.userProgress.stats.filesUploaded++;
         }
         
-        checkChallenges();
         
         if (state.firestoreEnabled) {
             await saveUserProgress();
@@ -494,122 +492,7 @@ async function useCredits(cost, action) {
     }
 }
 
-// ==================== CHALLENGES SYSTEM ====================
-function checkChallenges() {
-    let earnedCredits = 0;
-    
-    // First message challenge
-    if (state.userProgress.stats.messagesSent === 1 && !state.userProgress.challenges.includes('first_chat')) {
-        state.userProgress.challenges.push('first_chat');
-        state.userProgress.credits += 10;
-        earnedCredits += 10;
-        showNotification('Challenge completed: First Conversation! +10 credits', 'success');
-    }
-    
-    // Code questions challenge
-    const codeChallenge = CHALLENGES.find(c => c.id === 'code_question');
-    if (codeChallenge && !state.userProgress.challenges.includes('code_question')) {
-        const progress = state.userProgress.stats.messagesSent;
-        if (progress >= 5) {
-            state.userProgress.challenges.push('code_question');
-            state.userProgress.credits += 25;
-            earnedCredits += 25;
-            showNotification('Challenge completed: Code Master! +25 credits', 'success');
-        }
-    }
-    
-    // Chat creator challenge
-    const chatChallenge = CHALLENGES.find(c => c.id === 'chat_creator');
-    if (chatChallenge && !state.userProgress.challenges.includes('chat_creator')) {
-        const progress = state.userProgress.stats.chatsCreated;
-        if (progress >= 3) {
-            state.userProgress.challenges.push('chat_creator');
-            state.userProgress.credits += 30;
-            earnedCredits += 30;
-            showNotification('Challenge completed: Chat Creator! +30 credits', 'success');
-        }
-    }
-    
-    // File uploader challenge
-    const fileChallenge = CHALLENGES.find(c => c.id === 'file_uploader');
-    if (fileChallenge && !state.userProgress.challenges.includes('file_uploader')) {
-        const progress = state.userProgress.stats.filesUploaded;
-        if (progress >= 3) {
-            state.userProgress.challenges.push('file_uploader');
-            state.userProgress.credits += 20;
-            earnedCredits += 20;
-            showNotification('Challenge completed: File Helper! +20 credits', 'success');
-        }
-    }
-    
-    if (earnedCredits > 0) {
-        updateProgressUI();
-        if (state.firestoreEnabled) {
-            saveUserProgress();
-        } else {
-            saveUserProgressToLocalStorage();
-        }
-    }
-}
 
-function displayChallenges() {
-    const container = document.getElementById('challengesContainer');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    CHALLENGES.forEach(challenge => {
-        const completed = state.userProgress.challenges.includes(challenge.id);
-        const challengeEl = document.createElement('div');
-        challengeEl.className = 'challenge-item';
-        
-        challengeEl.innerHTML = `
-            <div class="challenge-info">
-                <div class="challenge-title">${challenge.title}</div>
-                <div class="challenge-description">${challenge.description}</div>
-                <div class="challenge-reward">Reward: ${challenge.reward} credits</div>
-            </div>
-            <div class="challenge-status ${completed ? 'completed' : 'pending'}">
-                ${completed ? 'Completed' : 'In Progress'}
-            </div>
-        `;
-        
-        container.appendChild(challengeEl);
-    });
-}
-
-// ==================== CHALLENGES MODAL ====================
-function showChallengesModal() {
-    displayChallenges();
-    const modal = document.getElementById('challengesModal');
-    if (modal) {
-        modal.style.display = 'flex';
-    }
-}
-
-function hideChallengesModal() {
-    const modal = document.getElementById('challengesModal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-function setupChallengesModal() {
-    const modal = document.getElementById('challengesModal');
-    const closeBtn = document.getElementById('closeChallengesModal');
-    
-    if (closeBtn) {
-        closeBtn.addEventListener('click', hideChallengesModal);
-    }
-    
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                hideChallengesModal();
-            }
-        });
-    }
-}
 
 // ==================== FIREBASE OPERATIONS ====================
 async function saveChatToFirestore(chat) {
