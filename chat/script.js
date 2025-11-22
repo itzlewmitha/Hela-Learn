@@ -780,12 +780,8 @@ function formatAIResponse(content) {
 }
 
 // ==================== CREDIT SYSTEM ====================
-const CREDIT_COSTS = {
-    CHAT_MESSAGE: 1,
-    NEW_CHAT: 0, // Free now
-    FILE_ANALYSIS: 2
-};
-
+// CREDIT_COSTS is declared earlier (including NOTE_GENERATION and PDF_REGENERATION keys).
+// Reuse the existing CREDIT_COSTS constant defined above.
 async function useCredits(cost, action) {
     if (!state.currentUser) return true;
     
