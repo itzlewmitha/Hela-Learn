@@ -670,7 +670,6 @@ async function createNewChat() {
         updateChatHistorySidebar();
         updateURL(newChat.id);
         
-        checkChallenges();
         
         return newChat.id;
     } catch (error) {
@@ -1221,7 +1220,6 @@ async function initializeElements() {
             examplePrompts: document.getElementById('examplePrompts'),
             creditsDisplay: document.getElementById('creditsDisplay'),
             creditBar: document.getElementById('creditBar'),
-            challengesBtn: document.getElementById('challengesBtn'),
             settingsBtn: document.getElementById('settingsBtn'),
             settingsMenu: document.getElementById('settingsMenu'),
             appearanceSettingsBtn: document.getElementById('appearanceSettingsBtn'),
@@ -1252,10 +1250,6 @@ function setupEventListeners() {
     }
 
     if (elements.newChatBtn) elements.newChatBtn.addEventListener('click', createNewChat);
-
-    if (elements.challengesBtn) {
-        elements.challengesBtn.addEventListener('click', showChallengesModal);
-    }
 
     // Settings menu
     setupSettingsMenu();
@@ -1386,7 +1380,6 @@ async function startApplication() {
         if (!elementsReady) throw new Error('Failed to initialize DOM elements');
         
         setupEventListeners();
-        setupChallengesModal();
         setupFileUpload();
         initializeTheme();
         await initializeApp();
