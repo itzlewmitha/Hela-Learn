@@ -995,30 +995,32 @@
 }
 
 /* PDF Download Button in Chat */
+/* Add to your CSS */
 .pdf-download-btn {
-    background: var(--error);
+    background: linear-gradient(135deg, #8B5FBF, #9D76C1);
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 8px 16px;
+    padding: 10px 16px;
     cursor: pointer;
     transition: var(--transition);
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.85rem;
-    margin-top: 10px;
+    font-size: 0.9rem;
+    margin-top: 12px;
+    font-weight: 500;
 }
 
 .pdf-download-btn:hover {
-    background: #d32f2f;
+    background: linear-gradient(135deg, #7a4fa8, #8a65b0);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 95, 191, 0.3);
 }
 
-/* Note Preview in Chat */
 .note-preview {
-    background: rgba(139, 95, 191, 0.1);
-    border: 1px solid rgba(139, 95, 191, 0.3);
+    background: rgba(139, 95, 191, 0.08);
+    border: 1px solid rgba(139, 95, 191, 0.2);
     border-radius: 12px;
     padding: 16px;
     margin: 12px 0;
@@ -1026,9 +1028,11 @@
 
 .note-preview-header {
     display: flex;
-    justify-content: between;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .note-preview-title {
@@ -1037,11 +1041,22 @@
     font-size: 1.1rem;
 }
 
+.note-preview-meta {
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
 .note-preview-content {
     color: var(--text);
     line-height: 1.5;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    margin-bottom: 12px;
 }
-
+/* Note Preview in Chat */
 .note-section {
     margin-bottom: 16px;
 }
@@ -1332,6 +1347,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
