@@ -49,6 +49,87 @@ const CREDIT_COSTS = {
     PDF_REGENERATION: 1
 };
 
+// ==================== SRI LANKAN CURRICULUM DATA ====================
+const SRI_LANKAN_CURRICULUM = {
+    // Grades 6-9 Common Subjects
+    '6-9': {
+        name: 'Grades 6-9',
+        subjects: [
+            'Mathematics', 'Science', 'English', 'Sinhala', 'Tamil', 'History', 
+            'Geography', 'Civics', 'Buddhism', 'Catholicism', 'Islam', 'Health',
+            'Art', 'Drama', 'Eastern Music', 'Western Music', 'ICT'
+        ]
+    },
+    
+    // O/L Subjects (Grades 10-11)
+    '10-11': {
+        name: 'O/L (Grades 10-11)',
+        compulsory: [
+            'Mathematics', 'Science', 'English', 'Sinhala', 'Tamil', 'History',
+            'Buddhism', 'Catholicism', 'Islam'
+        ],
+        basket1: [
+            'Eastern Music', 'Western Music', 'Art', 'Eastern Dancing', 
+            'Western Dancing', 'Drama & Theatre'
+        ],
+        basket2: [
+            'ICT', 'Agriculture & Food Technology', 'Home Science', 
+            'Practical Technology', 'Design & Construction'
+        ],
+        basket3: [
+            'Business & Accounting Studies', 'Geography', 'Civic Education',
+            'Entrepreneurship Studies'
+        ]
+    },
+    
+    // A/L Science Stream
+    'science': {
+        name: 'A/L Science Stream',
+        subjects: [
+            'Biology', 'Chemistry', 'Physics', 'Combined Mathematics',
+            'Agriculture', 'ICT'
+        ]
+    },
+    
+    // A/L Commerce Stream
+    'commerce': {
+        name: 'A/L Commerce Stream',
+        subjects: [
+            'Accounting', 'Business Studies', 'Economics', 
+            'Business Statistics', 'ICT'
+        ]
+    },
+    
+    // A/L Arts Stream
+    'arts': {
+        name: 'A/L Arts Stream',
+        subjects: [
+            'Sinhala', 'Tamil', 'English', 'Political Science', 'Geography',
+            'History', 'Economics', 'Buddhism', 'Christianity', 'Islam',
+            'Hindu Civilization', 'Logic', 'Mass Media', 'Art', 'Dancing',
+            'Music', 'Drama & Theatre', 'ICT', 'Home Science',
+            'Greek & Roman Civilization', 'Japanese', 'French', 'German'
+        ]
+    },
+    
+    // A/L Technology Stream
+    'technology': {
+        name: 'A/L Technology Stream',
+        subjects: [
+            'Engineering Technology', 'Bio-System Technology', 
+            'Science for Technology', 'ICT'
+        ]
+    },
+    
+    // A/L Aesthetic Stream
+    'aesthetic': {
+        name: 'A/L Aesthetic Stream',
+        subjects: [
+            'Art', 'Music', 'Dancing', 'Drama & Theatre'
+        ]
+    }
+};
+
 // ==================== DOM ELEMENTS ====================
 let elements = {};
 
@@ -155,6 +236,7 @@ function applyTheme(theme) {
     document.body.offsetHeight; // Trigger reflow
     document.body.style.display = '';
 }
+
 // ==================== TYPING INDICATOR FUNCTIONS ====================
 function removeTypingIndicator() {
     const typing = document.getElementById('typing-indicator');
@@ -359,6 +441,7 @@ function getImageInfo(file) {
         img.src = url;
     });
 }
+
 // ==================== NOTE GENERATOR SYSTEM ====================
 function setupNoteGenerator() {
     const noteGeneratorBtn = document.getElementById('noteGeneratorBtn');
@@ -370,6 +453,7 @@ function setupNoteGenerator() {
     if (noteGeneratorBtn) {
         noteGeneratorBtn.addEventListener('click', () => {
             noteGeneratorModal.style.display = 'flex';
+            populateCurriculumOptions();
         });
     }
 
@@ -399,6 +483,74 @@ function setupNoteGenerator() {
     }
 }
 
+function populateCurriculumOptions() {
+    const gradeSelect = document.getElementById('noteGrade');
+    const subjectSelect = document.getElementById('noteSubject');
+    
+    if (!gradeSelect || !subjectSelect) return;
+    
+    // Clear existing options
+    gradeSelect.innerHTML = '';
+    subjectSelect.innerHTML = '<option value="">Select a grade first</option>';
+    
+    // Add grade options
+    const gradeOptions = [
+        { value: '6-9', text: 'Grades 6-9' },
+        { value: '10-11', text: 'O/L (Grades 10-11)' },
+        { value: 'science', text: 'A/L Science Stream' },
+        { value: 'commerce', text: 'A/L Commerce Stream' },
+        { value: 'arts', text: 'A/L Arts Stream' },
+        { value: 'technology', text: 'A/L Technology Stream' },
+        { value: 'aesthetic', text: 'A/L Aesthetic Stream' }
+    ];
+    
+    gradeOptions.forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option.value;
+        optionElement.textContent = option.text;
+        gradeSelect.appendChild(optionElement);
+    });
+    
+    // Add event listener for grade change
+    gradeSelect.addEventListener('change', function() {
+        updateSubjectOptions(this.value);
+    });
+}
+
+function updateSubjectOptions(gradeLevel) {
+    const subjectSelect = document.getElementById('noteSubject');
+    if (!subjectSelect) return;
+    
+    subjectSelect.innerHTML = '<option value="">Select a subject</option>';
+    
+    const curriculum = SRI_LANKAN_CURRICULUM[gradeLevel];
+    if (!curriculum) return;
+    
+    let subjects = [];
+    
+    if (gradeLevel === '10-11') {
+        // Combine compulsory and basket subjects for O/L
+        subjects = [
+            ...curriculum.compulsory,
+            ...curriculum.basket1,
+            ...curriculum.basket2,
+            ...curriculum.basket3
+        ];
+    } else {
+        subjects = curriculum.subjects;
+    }
+    
+    // Remove duplicates and sort alphabetically
+    subjects = [...new Set(subjects)].sort();
+    
+    subjects.forEach(subject => {
+        const option = document.createElement('option');
+        option.value = subject;
+        option.textContent = subject;
+        subjectSelect.appendChild(option);
+    });
+}
+
 async function generateStudyNotes() {
     try {
         const subject = document.getElementById('noteSubject').value;
@@ -422,7 +574,7 @@ async function generateStudyNotes() {
         generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
         generateBtn.disabled = true;
 
-        // Create the prompt for AI
+        // Create the prompt for AI with Sri Lankan curriculum context
         const notePrompt = createNotePrompt(subject, grade, topic, noteType, instructions);
         
         // Show typing indicator
@@ -431,6 +583,10 @@ async function generateStudyNotes() {
         // Call AI to generate notes
         const notesContent = await callAI(notePrompt);
         removeTypingIndicator();
+
+        if (!notesContent || notesContent.includes("connection issues")) {
+            throw new Error('Failed to generate notes content');
+        }
 
         // Display notes in chat
         displayNotesInChat(notesContent, subject, grade, topic);
@@ -442,9 +598,9 @@ async function generateStudyNotes() {
         document.getElementById('noteGeneratorModal').style.display = 'none';
         
         // Reset form
-        document.getElementById('noteGeneratorForm').reset();
+        document.querySelector('.note-generator-form').reset();
 
-        showNotification('Study notes generated and downloaded!', 'success');
+        showNotification('Study notes generated successfully!', 'success');
 
     } catch (error) {
         console.error('Error generating notes:', error);
@@ -459,31 +615,48 @@ async function generateStudyNotes() {
 }
 
 function createNotePrompt(subject, grade, topic, noteType, instructions) {
+    const curriculum = SRI_LANKAN_CURRICULUM[grade];
+    const gradeName = curriculum ? curriculum.name : `Grade ${grade}`;
+    
     const noteTypeMap = {
-        'short_notes': 'concise short notes with bullet points',
-        'summary': 'comprehensive summary',
-        'revision': 'exam-focused revision notes',
-        'detailed': 'detailed study notes',
-        'mindmap': 'structured mind map format'
+        'short_notes': 'concise short notes with clear headings and bullet points',
+        'summary': 'comprehensive summary with key points',
+        'revision': 'exam-focused revision notes with important concepts',
+        'detailed': 'detailed study notes with explanations',
+        'mindmap': 'structured hierarchical notes'
     };
 
-    let prompt = `Create ${noteTypeMap[noteType] || 'study notes'} for the following request:
+    let prompt = `Create ${noteTypeMap[noteType] || 'well-structured study notes'} for SRI LANKAN CURRICULUM:
 
+EDUCATION LEVEL: ${gradeName}
 SUBJECT: ${subject}
-GRADE: ${grade}
-TOPIC: ${topic}
+TOPIC/CHAPTER: ${topic}
 
-Please structure the notes with:
-1. Clear headings and subheadings
-2. Bullet points for easy reading
-3. Key definitions highlighted
-4. Important dates/events (if applicable)
-5. Summary section
-6. Space for student's own notes
+SRI LANKAN CURRICULUM CONTEXT:
+- Follow the official Sri Lankan curriculum standards
+- Include relevant local examples and context where applicable
+- Use terminology appropriate for Sri Lankan education system
+- Consider cultural relevance and local applications
 
-${instructions ? `ADDITIONAL INSTRUCTIONS: ${instructions}` : ''}
+Please structure the response with:
+1. Clear section headings following Sri Lankan curriculum standards
+2. Bullet points for key information
+3. Important definitions highlighted
+4. Key dates or events (if historical) with Sri Lankan context
+5. A summary section at the end
+6. Study tips relevant to Sri Lankan examination patterns
 
-Format the response in a way that's easy to convert to a PDF study guide. Use clear section breaks and emphasize important concepts.`;
+Format requirements:
+- Use headings like "1. Main Topic", "2. Key Concepts", etc.
+- Use bullet points with "- " for lists
+- Highlight definitions with "Definition: "
+- Include "Key Terms" section with Sinhala/Tamil translations if relevant
+- Add "Exam Focus" section for important examination topics
+- Keep it organized and easy to read
+
+Make sure the content is appropriate for ${gradeName} and covers the essential information about ${topic} according to Sri Lankan curriculum standards.
+
+${instructions ? `SPECIAL INSTRUCTIONS: ${instructions}` : ''}`;
 
     return prompt;
 }
@@ -509,14 +682,17 @@ function displayNotesInChat(notesContent, subject, grade, topic) {
     const notesPreview = document.createElement('div');
     notesPreview.className = 'note-preview';
     
+    const curriculum = SRI_LANKAN_CURRICULUM[grade];
+    const gradeName = curriculum ? curriculum.name : `Grade ${grade}`;
+    
     notesPreview.innerHTML = `
         <div class="note-preview-header">
-            <div class="note-preview-title">📚 Study Notes: ${topic}</div>
+            <div class="note-preview-title">📚 Sri Lankan Curriculum Notes: ${topic}</div>
         </div>
         <div class="note-preview-content">
             <div style="margin-bottom: 12px;">
-                <strong>Subject:</strong> ${subject} | 
-                <strong>Grade:</strong> ${grade} |
+                <strong>Education Level:</strong> ${gradeName} | 
+                <strong>Subject:</strong> ${subject} |
                 <strong>Type:</strong> Study Notes
             </div>
             <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; font-size: 0.9rem;">
@@ -534,7 +710,7 @@ function displayNotesInChat(notesContent, subject, grade, topic) {
     elements.chatMessages.appendChild(messageDiv);
 
     // Add to chat history
-    addMessageToChat('ai', `Generated study notes for: ${topic} (${subject} - Grade ${grade})`);
+    addMessageToChat('ai', `Generated Sri Lankan curriculum notes for: ${topic} (${subject} - ${gradeName})`);
 
     scrollToBottom();
 }
@@ -563,6 +739,9 @@ async function createPrintablePDF(content, subject, grade, topic) {
     // Create a printable HTML document
     const printWindow = window.open('', '_blank');
     const timestamp = new Date().toLocaleDateString();
+    
+    const curriculum = SRI_LANKAN_CURRICULUM[grade];
+    const gradeName = curriculum ? curriculum.name : `Grade ${grade}`;
     
     const pdfHTML = `
 <!DOCTYPE html>
@@ -701,17 +880,28 @@ async function createPrintablePDF(content, subject, grade, topic) {
             background: #f9f9f9;
             min-height: 100px;
         }
+        
+        .curriculum-badge {
+            background: #8B5FBF;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <h1 class="title">Hela Learn</h1>
-        <h2 class="subtitle">Study Notes: ${topic}</h2>
+        <h2 class="subtitle">Sri Lankan Curriculum Notes: ${topic}</h2>
         <div class="meta-info">
+            <div class="meta-item"><strong>Education Level:</strong> ${gradeName}</div>
             <div class="meta-item"><strong>Subject:</strong> ${subject}</div>
-            <div class="meta-item"><strong>Grade:</strong> ${grade}</div>
             <div class="meta-item"><strong>Date:</strong> ${timestamp}</div>
         </div>
+        <div class="curriculum-badge">Sri Lankan National Curriculum</div>
     </div>
     
     <div class="content">
@@ -818,69 +1008,17 @@ function formatContentForPDF(content) {
     return formattedHTML;
 }
 
-// Alternative: Simple text-based PDF using jsPDF (if you want to include the library)
-async function generatePDFWithjsPDF(notesContent, subject, grade, topic) {
-    try {
-        // Check if jsPDF is available
-        if (typeof jspdf === 'undefined') {
-            // Load jsPDF from CDN
-            await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-        }
-        
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        // Add header
-        doc.setFontSize(20);
-        doc.setTextColor(139, 95, 191);
-        doc.text('Hela Learn - Study Notes', 20, 30);
-        
-        doc.setFontSize(16);
-        doc.setTextColor(0, 0, 0);
-        doc.text(`Topic: ${topic}`, 20, 50);
-        doc.text(`Subject: ${subject} | Grade: ${grade}`, 20, 60);
-        
-        // Add content
-        const lines = doc.splitTextToSize(notesContent, 170);
-        doc.setFontSize(12);
-        doc.text(lines, 20, 80);
-        
-        // Add footer
-        const pageCount = doc.internal.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-            doc.setPage(i);
-            doc.setFontSize(10);
-            doc.text(`Page ${i} of ${pageCount} - Generated by Hela Learn`, 20, 280);
-        }
-        
-        // Save the PDF
-        doc.save(`HelaLearn_Notes_${subject}_Grade${grade}_${topic.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
-        
-    } catch (error) {
-        console.error('Error with jsPDF:', error);
-        // Fallback to printable version
-        await createPrintablePDF(notesContent, subject, grade, topic);
-    }
-}
-
-function loadScript(src) {
-    return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = src;
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-    });
-}
-
 function downloadTextFile(content, subject, grade, topic) {
+    const curriculum = SRI_LANKAN_CURRICULUM[grade];
+    const gradeName = curriculum ? curriculum.name : `Grade ${grade}`;
+    
     const formattedContent = `
-HELA LEARN - STUDY NOTES
-========================
+HELA LEARN - SRI LANKAN CURRICULUM NOTES
+=========================================
 
 Topic: ${topic}
+Education Level: ${gradeName}
 Subject: ${subject}
-Grade: ${grade}
 Date: ${new Date().toLocaleDateString()}
 
 ${content}
@@ -894,7 +1032,7 @@ Generated by Hela Learn - Sri Lanka's AI Learning Assistant
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `HelaLearn_Notes_${subject}_Grade${grade}_${topic.replace(/[^a-zA-Z0-9]/g, '_')}.txt`;
+    a.download = `HelaLearn_Notes_${subject}_${gradeName.replace(/[^a-zA-Z0-9]/g, '_')}_${topic.replace(/[^a-zA-Z0-9]/g, '_')}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -903,106 +1041,6 @@ Generated by Hela Learn - Sri Lanka's AI Learning Assistant
     showNotification('Text notes downloaded!', 'success');
 }
 
-// Update the generateStudyNotes function to use the working PDF generator
-async function generateStudyNotes() {
-    try {
-        const subject = document.getElementById('noteSubject').value;
-        const grade = document.getElementById('noteGrade').value;
-        const topic = document.getElementById('noteTopic').value;
-        const noteType = document.getElementById('noteType').value;
-        const instructions = document.getElementById('noteInstructions').value;
-
-        if (!subject || !grade || !topic) {
-            showNotification('Please fill in all required fields', 'error');
-            return;
-        }
-
-        // Check credits
-        if (!await useCredits(3, 'note_generation')) {
-            return;
-        }
-
-        const generateBtn = document.getElementById('generateNoteBtn');
-        const originalText = generateBtn.innerHTML;
-        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
-        generateBtn.disabled = true;
-
-        // Create the prompt for AI
-        const notePrompt = createNotePrompt(subject, grade, topic, noteType, instructions);
-        
-        // Show typing indicator
-        showTypingIndicator();
-
-        // Call AI to generate notes
-        const notesContent = await callAI(notePrompt);
-        removeTypingIndicator();
-
-        if (!notesContent || notesContent.includes("connection issues")) {
-            throw new Error('Failed to generate notes content');
-        }
-
-        // Display notes in chat
-        displayNotesInChat(notesContent, subject, grade, topic);
-        
-        // Generate and download PDF
-        await generatePDF(notesContent, subject, grade, topic);
-        
-        // Close modal
-        document.getElementById('noteGeneratorModal').style.display = 'none';
-        
-        // Reset form
-        document.querySelector('.note-generator-form').reset();
-
-        showNotification('Study notes generated successfully!', 'success');
-
-    } catch (error) {
-        console.error('Error generating notes:', error);
-        showNotification('Error generating notes. Please try again.', 'error');
-    } finally {
-        const generateBtn = document.getElementById('generateNoteBtn');
-        if (generateBtn) {
-            generateBtn.innerHTML = '<i class="fas fa-download"></i> Generate & Download PDF';
-            generateBtn.disabled = false;
-        }
-    }
-}
-
-// Update the note prompt to get better structured content
-function createNotePrompt(subject, grade, topic, noteType, instructions) {
-    const noteTypeMap = {
-        'short_notes': 'concise short notes with clear headings and bullet points',
-        'summary': 'comprehensive summary with key points',
-        'revision': 'exam-focused revision notes with important concepts',
-        'detailed': 'detailed study notes with explanations',
-        'mindmap': 'structured hierarchical notes'
-    };
-
-    let prompt = `Create ${noteTypeMap[noteType] || 'well-structured study notes'} for:
-
-SUBJECT: ${subject}
-GRADE LEVEL: Grade ${grade} 
-TOPIC/CHAPTER: ${topic}
-
-Please structure the response with:
-1. Clear section headings
-2. Bullet points for key information
-3. Important definitions highlighted
-4. Key dates or events (if historical)
-5. A summary section at the end
-6. Study tips if relevant
-
-Format requirements:
-- Use headings like "1. Main Topic", "2. Key Concepts", etc.
-- Use bullet points with "- " for lists
-- Highlight definitions with "Definition: "
-- Keep it organized and easy to read
-
-${instructions ? `SPECIAL INSTRUCTIONS: ${instructions}` : ''}
-
-Make sure the content is appropriate for a Grade ${grade} student and covers the essential information about ${topic}.`;
-
-    return prompt;
-}
 // ==================== CODE BLOCK FUNCTIONS ====================
 function copyToClipboard(button) {
     const codeBlock = button.closest('.code-block');
@@ -1111,8 +1149,6 @@ function formatAIResponse(content) {
 }
 
 // ==================== CREDIT SYSTEM ====================
-// CREDIT_COSTS is declared earlier (including NOTE_GENERATION and PDF_REGENERATION keys).
-// Reuse the existing CREDIT_COSTS constant defined above.
 async function useCredits(cost, action) {
     if (!state.currentUser) return true;
     
@@ -1126,7 +1162,6 @@ async function useCredits(cost, action) {
             state.userProgress.stats.filesUploaded++;
         }
         
-        
         if (state.firestoreEnabled) {
             await saveUserProgress();
         } else {
@@ -1139,8 +1174,6 @@ async function useCredits(cost, action) {
         return false;
     }
 }
-
-
 
 // ==================== FIREBASE OPERATIONS ====================
 async function saveChatToFirestore(chat) {
@@ -1317,7 +1350,6 @@ async function createNewChat() {
         
         updateChatHistorySidebar();
         updateURL(newChat.id);
-        
         
         return newChat.id;
     } catch (error) {
@@ -1594,43 +1626,52 @@ async function callAI(userMessage, attachedFiles = []) {
                 "Authorization": `Bearer ${API_CONFIG.KEY}`
             },
             body: JSON.stringify({
-                system: `You are Hela Learn, Sri Lanka's premier AI learning assistant. Your role is to help students with studying, note-taking, and academic success.
+                system: `You are Hela Learn, Sri Lanka's premier AI learning assistant specialized in the Sri Lankan national curriculum. Your role is to help students with studying, note-taking, and academic success according to Sri Lankan education standards.
+
+SRI LANKAN CURRICULUM SPECIALIZATION:
+- Grades 6-9 curriculum
+- G.C.E. Ordinary Level (O/L) subjects
+- G.C.E. Advanced Level (A/L) streams: Science, Commerce, Arts, Technology, Aesthetic
+- Local examination patterns and requirements
+- Cultural context and local examples
 
 SPECIALIZATIONS:
-- Study Note Generation (all subjects)
-- Exam Preparation
-- Concept Explanation
-- Homework Help
-- Research Assistance
+- Sri Lankan Curriculum Study Note Generation
+- O/L and A/L Exam Preparation
+- Concept Explanation with local context
+- Homework Help aligned with national curriculum
+- Research Assistance for Sri Lankan topics
 
-NOTE GENERATION GUIDELINES:
-- Structure notes with clear headings and subheadings
+NOTE GENERATION GUIDELINES FOR SRI LANKAN CURRICULUM:
+- Structure notes according to national curriculum standards
 - Use bullet points for easy scanning
 - Highlight key definitions and important concepts
-- Include timelines for historical topics
+- Include Sri Lankan historical timelines and local examples
 - Add diagrams/flowcharts for science topics
 - Provide summaries at the end
-- Leave space for student's own notes
+- Include Sinhala/Tamil translations for key terms when relevant
+- Focus on examination-important topics
 - Use appropriate language for the grade level
 
-RESPONSE FORMAT FOR NOTES:
-1. MAIN TOPIC TITLE
-   - Key point 1
-   - Key point 2
+RESPONSE FORMAT FOR SRI LANKAN NOTES:
+1. MAIN TOPIC TITLE (Curriculum Aligned)
+   - Key point 1 with local context
+   - Key point 2 
    - Important definitions
 
-2. SUBTOPIC
+2. SUBTOPIC (As per syllabus)
    - Detailed points
-   - Examples
+   - Sri Lankan examples
    - Related concepts
 
-KEY FEATURES:
-- Include "Key Terms" section with definitions
-- Add "Important Dates" for historical topics
-- Create "Summary" section at the end
-- Suggest "Study Tips" when relevant
+KEY FEATURES FOR SRI LANKAN STUDENTS:
+- Include "Key Terms" section with Sinhala/Tamil translations
+- Add "Important Dates" for historical topics with Sri Lankan events
+- Create "Exam Focus" section highlighting common exam questions
+- Suggest "Study Tips" relevant to Sri Lankan examination patterns
+- Include "Local Applications" for science and social studies
 
-TONE: Educational, supportive, and clear. Adapt to the student's grade level and stay always in the topic`,
+TONE: Educational, supportive, culturally relevant, and clear. Adapt to the Sri Lankan curriculum standards and examination requirements.`,
                 message: fullPrompt,
                 model: API_CONFIG.MODEL,
                 enableGoogleSearch: false
@@ -2043,6 +2084,7 @@ async function initializeApp() {
         // Already redirected to auth page by checkAuth()
     }
 }
+
 // ==================== START APPLICATION ====================
 async function startApplication() {
     try {
@@ -2051,7 +2093,7 @@ async function startApplication() {
         
         setupEventListeners();
         setupFileUpload();
-        setupNoteGenerator(); // ADD THIS LINE
+        setupNoteGenerator();
         initializeTheme();
         await initializeApp();
         
@@ -2061,6 +2103,7 @@ async function startApplication() {
         showNotification('Failed to load app. Please refresh the page.', 'error');
     }
 }
+
 // ==================== GLOBAL FUNCTIONS ====================
 window.handleSend = handleSend;
 window.deleteChat = deleteChat;
