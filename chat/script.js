@@ -40,6 +40,15 @@ let state = {
     }
 };
 
+// ==================== CREDIT COSTS ====================
+const CREDIT_COSTS = {
+    CHAT_MESSAGE: 1,
+    NEW_CHAT: 0,
+    FILE_ANALYSIS: 2,
+    NOTE_GENERATION: 3,
+    PDF_REGENERATION: 1
+};
+
 // ==================== DOM ELEMENTS ====================
 let elements = {};
 
@@ -1884,7 +1893,11 @@ async function initializeElements() {
             confirmDeleteBtn: document.getElementById('confirmDeleteBtn'),
             cancelDeleteBtn: document.getElementById('cancelDeleteBtn'),
             closeDeleteAccountModal: document.getElementById('closeDeleteAccountModal'),
-            fileUploadBtn: document.getElementById('fileUploadBtn')
+            fileUploadBtn: document.getElementById('fileUploadBtn'),
+            // Add note generator elements
+            noteGeneratorBtn: document.getElementById('noteGeneratorBtn'),
+            noteGeneratorModal: document.getElementById('noteGeneratorModal'),
+            generateNoteBtn: document.getElementById('generateNoteBtn')
         };
         return true;
     } catch (error) {
@@ -2031,13 +2044,14 @@ async function initializeApp() {
     }
 }
 // ==================== START APPLICATION ====================
-async function startApplication() {
+sync function startApplication() {
     try {
         const elementsReady = await initializeElements();
         if (!elementsReady) throw new Error('Failed to initialize DOM elements');
         
         setupEventListeners();
         setupFileUpload();
+        setupNoteGenerator(); // ADD THIS LINE
         initializeTheme();
         await initializeApp();
         
@@ -2047,7 +2061,6 @@ async function startApplication() {
         showNotification('Failed to load app. Please refresh the page.', 'error');
     }
 }
-
 // ==================== GLOBAL FUNCTIONS ====================
 window.handleSend = handleSend;
 window.deleteChat = deleteChat;
