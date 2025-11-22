@@ -882,31 +882,6 @@
   <!-- Background Animation -->
   <div class="background-animation" id="backgroundAnimation"></div>
   
-  <!-- Auth Modal -->
-  <div class="auth-modal" id="authModal">
-    <div class="auth-container">
-      <button class="auth-close" id="authClose">&times;</button>
-      <h2 class="auth-title" id="authTitle">Sign In</h2>
-      
-      <div class="error-message" id="authError"></div>
-      
-      <div class="auth-form">
-        <input type="text" id="nameField" placeholder="Full Name" class="auth-input" style="display:none;">
-        <input type="email" id="authEmail" placeholder="Email Address" class="auth-input">
-        <input type="password" id="authPassword" placeholder="Password" class="auth-input">
-        <button class="auth-btn" id="authBtn">Sign In</button>
-        <button class="auth-btn google-btn" id="googleBtn">
-          <i class="fab fa-google"></i> Continue with Google
-        </button>
-      </div>
-      
-      <div class="auth-switch">
-        <span id="authSwitchText">Don't have an account?</span>
-        <a class="auth-link" id="authSwitchLink">Create one</a>
-      </div>
-    </div>
-  </div>
-  
   <!-- Header -->
 <header class="container">
   <div class="logo">
@@ -1433,15 +1408,10 @@
       elements.googleBtn.addEventListener('click', handleGoogleAuth);
       
       // Button functionality
-      elements.launchBtn.addEventListener('click', function() {
-        if (state.currentUser) {
-          // Redirect to access.html if logged in
-          window.location.href = '/chat/';
-        } else {
-          // Show auth modal if not logged in
-          openAuthModal();
-        }
-      });
+elements.launchBtn.addEventListener('click', function() {
+    // Always redirect to auth page - it will handle redirection if already logged in
+    window.location.href = '/auth/';
+});
       
       // Contact form functionality
       elements.contactForm.addEventListener('submit', function(e) {
@@ -1475,129 +1445,6 @@
       hideAuthError();
     }
 
-    function openAuthModal() {
-      elements.authModal.classList.add('active');
-    }
-
-    function closeAuthModal() {
-      elements.authModal.classList.remove('active');
-      hideAuthError();
-    }
-
-    function showAuthError(message) {
-      elements.authError.textContent = message;
-      elements.authError.style.display = 'block';
-    }
-
-    function hideAuthError() {
-      elements.authError.style.display = 'none';
-    }
-
-    async function handleAuth() {
-      const email = elements.authEmail.value.trim();
-      const password = elements.authPassword.value;
-      const name = elements.nameField.value.trim();
-
-      if (!email || !password) {
-        showAuthError('Please fill in all fields');
-        return;
-      }
-
-      if (state.isSignUp && !name) {
-        showAuthError('Please enter your full name');
-        return;
-      }
-
-      if (state.isSignUp && password.length < 6) {
-        showAuthError('Password must be at least 6 characters');
-        return;
-      }
-
-      elements.authBtn.disabled = true;
-      elements.authBtn.textContent = 'Processing...';
-
-      try {
-        if (state.isSignUp) {
-          // Create new account
-          const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-          
-          // Update profile with display name
-          await userCredential.user.updateProfile({
-            displayName: name
-          });
-          
-          // Create user document in Firestore
-          await db.collection('users').doc(userCredential.user.uid).set({
-            name: name,
-            email: email,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            credits: 100 // Initial credits
-          });
-          
-          handleAuthSuccess(userCredential.user);
-        } else {
-          // Sign in
-          const userCredential = await auth.signInWithEmailAndPassword(email, password);
-          handleAuthSuccess(userCredential.user);
-        }
-      } catch (error) {
-        showAuthError(error.message.replace('Firebase:', '').trim());
-        elements.authBtn.disabled = false;
-        elements.authBtn.textContent = state.isSignUp ? 'Sign Up' : 'Sign In';
-      }
-    }
-
-    async function handleGoogleAuth() {
-      elements.googleBtn.disabled = true;
-      elements.googleBtn.innerHTML = '<i class="fab fa-google"></i> Connecting...';
-
-      try {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        const userCredential = await auth.signInWithPopup(provider);
-        
-        // Check if this is a new user
-        if (userCredential.additionalUserInfo.isNewUser) {
-          // Create user document in Firestore for new Google users
-          await db.collection('users').doc(userCredential.user.uid).set({
-            name: userCredential.user.displayName,
-            email: userCredential.user.email,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            credits: 100 // Initial credits
-          });
-        }
-        
-        handleAuthSuccess(userCredential.user);
-      } catch (error) {
-        showAuthError(error.message.replace('Firebase:', '').trim());
-        elements.googleBtn.disabled = false;
-        elements.googleBtn.innerHTML = '<i class="fab fa-google"></i> Continue with Google';
-      }
-    }
-
-    function handleAuthSuccess(user) {
-      console.log('Auth success:', user.email);
-      closeAuthModal();
-      state.currentUser = user;
-    }
-
-    async function checkUserChats(uid) {
-      try {
-        const chatsSnapshot = await db.collection('users')
-          .doc(uid)
-          .collection('chats')
-          .orderBy('updatedAt', 'desc')
-          .limit(1)
-          .get();
-
-        // If user has existing chats, redirect to chat.html
-        if (!chatsSnapshot.empty) {
-          console.log('User has existing chats, redirecting to chat');
-          window.location.href = 'https://helacode.vercel.app//chat/';
-        }
-      } catch (error) {
-        console.error('Error checking user chats:', error);
-      }
-    }
     // Mobile menu functionality
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
 const navLinks = document.querySelector('.nav-links');
@@ -1629,6 +1476,7 @@ if (mobileMenuBtn && navLinks) {
   </script>
 </body>
 </html>
+
 
 
 
