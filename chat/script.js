@@ -1,3 +1,58 @@
+// ==================== AUTHENTICATION CHECK ====================
+function checkAuth() {
+    return new Promise((resolve, reject) => {
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                state.currentUser = user;
+                resolve(user);
+            } else {
+                // Redirect to auth page if not logged in
+                window.location.href = '/auth/';
+                reject(new Error('Not authenticated'));
+            }
+        });
+    });
+}
+
+// ==================== APP INITIALIZATION ====================
+async function initializeApp() {
+    try {
+        // First check authentication
+        await checkAuth();
+        
+        // Then proceed with app initialization
+        updateUserInfo(state.currentUser);
+        
+        await Promise.all([
+            loadUserProgress(state.currentUser.uid),
+            loadChatsFromFirestore().then(success => {
+                if (!success) loadChatsFromLocalStorage();
+            })
+        ]);
+        
+        // Handle URL routing
+        const urlChatId = getChatIdFromURL();
+        let chatToLoad = null;
+        
+        if (urlChatId) {
+            const urlChat = state.chats.find(chat => chat.id === urlChatId);
+            chatToLoad = urlChat ? urlChatId : (await createNewChat());
+        } else if (state.chats.length > 0) {
+            chatToLoad = state.chats[0].id;
+        } else {
+            chatToLoad = await createNewChat();
+        }
+        
+        if (chatToLoad) await loadChat(chatToLoad);
+        
+        state.isInitialized = true;
+        console.log('App initialized successfully');
+        
+    } catch (error) {
+        console.error('Error in app initialization:', error);
+        // Already redirected to auth page by checkAuth()
+    }
+}
 // Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAkZ1COLT59ukLGzpv5lW3UZ8vQ9tEN1gw",
