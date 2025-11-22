@@ -350,6 +350,327 @@ function getImageInfo(file) {
         img.src = url;
     });
 }
+// ==================== NOTE GENERATOR SYSTEM ====================
+function setupNoteGenerator() {
+    const noteGeneratorBtn = document.getElementById('noteGeneratorBtn');
+    const noteGeneratorModal = document.getElementById('noteGeneratorModal');
+    const closeNoteGeneratorModal = document.getElementById('closeNoteGeneratorModal');
+    const cancelNoteBtn = document.getElementById('cancelNoteBtn');
+    const generateNoteBtn = document.getElementById('generateNoteBtn');
+
+    if (noteGeneratorBtn) {
+        noteGeneratorBtn.addEventListener('click', () => {
+            noteGeneratorModal.style.display = 'flex';
+        });
+    }
+
+    if (closeNoteGeneratorModal) {
+        closeNoteGeneratorModal.addEventListener('click', () => {
+            noteGeneratorModal.style.display = 'none';
+        });
+    }
+
+    if (cancelNoteBtn) {
+        cancelNoteBtn.addEventListener('click', () => {
+            noteGeneratorModal.style.display = 'none';
+        });
+    }
+
+    if (generateNoteBtn) {
+        generateNoteBtn.addEventListener('click', generateStudyNotes);
+    }
+
+    // Close modal when clicking outside
+    if (noteGeneratorModal) {
+        noteGeneratorModal.addEventListener('click', (e) => {
+            if (e.target === noteGeneratorModal) {
+                noteGeneratorModal.style.display = 'none';
+            }
+        });
+    }
+}
+
+async function generateStudyNotes() {
+    try {
+        const subject = document.getElementById('noteSubject').value;
+        const grade = document.getElementById('noteGrade').value;
+        const topic = document.getElementById('noteTopic').value;
+        const noteType = document.getElementById('noteType').value;
+        const instructions = document.getElementById('noteInstructions').value;
+
+        if (!subject || !grade || !topic) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+
+        // Check credits
+        if (!await useCredits(3, 'note_generation')) {
+            return;
+        }
+
+        const generateBtn = document.getElementById('generateNoteBtn');
+        const originalText = generateBtn.innerHTML;
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        generateBtn.disabled = true;
+
+        // Create the prompt for AI
+        const notePrompt = createNotePrompt(subject, grade, topic, noteType, instructions);
+        
+        // Show typing indicator
+        showTypingIndicator();
+
+        // Call AI to generate notes
+        const notesContent = await callAI(notePrompt);
+        removeTypingIndicator();
+
+        // Display notes in chat
+        displayNotesInChat(notesContent, subject, grade, topic);
+        
+        // Generate and download PDF
+        await generatePDF(notesContent, subject, grade, topic);
+        
+        // Close modal
+        document.getElementById('noteGeneratorModal').style.display = 'none';
+        
+        // Reset form
+        document.getElementById('noteGeneratorForm').reset();
+
+        showNotification('Study notes generated and downloaded!', 'success');
+
+    } catch (error) {
+        console.error('Error generating notes:', error);
+        showNotification('Error generating notes. Please try again.', 'error');
+    } finally {
+        const generateBtn = document.getElementById('generateNoteBtn');
+        if (generateBtn) {
+            generateBtn.innerHTML = '<i class="fas fa-download"></i> Generate & Download PDF';
+            generateBtn.disabled = false;
+        }
+    }
+}
+
+function createNotePrompt(subject, grade, topic, noteType, instructions) {
+    const noteTypeMap = {
+        'short_notes': 'concise short notes with bullet points',
+        'summary': 'comprehensive summary',
+        'revision': 'exam-focused revision notes',
+        'detailed': 'detailed study notes',
+        'mindmap': 'structured mind map format'
+    };
+
+    let prompt = `Create ${noteTypeMap[noteType] || 'study notes'} for the following request:
+
+SUBJECT: ${subject}
+GRADE: ${grade}
+TOPIC: ${topic}
+
+Please structure the notes with:
+1. Clear headings and subheadings
+2. Bullet points for easy reading
+3. Key definitions highlighted
+4. Important dates/events (if applicable)
+5. Summary section
+6. Space for student's own notes
+
+${instructions ? `ADDITIONAL INSTRUCTIONS: ${instructions}` : ''}
+
+Format the response in a way that's easy to convert to a PDF study guide. Use clear section breaks and emphasize important concepts.`;
+
+    return prompt;
+}
+
+function displayNotesInChat(notesContent, subject, grade, topic) {
+    if (!elements.chatMessages) return;
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message ai';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = 'H';
+    messageDiv.appendChild(avatar);
+
+    const messageContent = document.createElement('div');
+    messageContent.className = 'message-content';
+
+    const messageBubble = document.createElement('div');
+    messageBubble.className = 'message-bubble ai-bubble';
+
+    // Create notes preview
+    const notesPreview = document.createElement('div');
+    notesPreview.className = 'note-preview';
+    
+    notesPreview.innerHTML = `
+        <div class="note-preview-header">
+            <div class="note-preview-title">📚 Study Notes: ${topic}</div>
+        </div>
+        <div class="note-preview-content">
+            <div style="margin-bottom: 12px;">
+                <strong>Subject:</strong> ${subject} | 
+                <strong>Grade:</strong> ${grade} |
+                <strong>Type:</strong> Study Notes
+            </div>
+            <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; font-size: 0.9rem;">
+                ${formatAIResponse(notesContent)}
+            </div>
+        </div>
+        <button class="pdf-download-btn" onclick="regeneratePDF('${subject}', '${grade}', '${topic}')">
+            <i class="fas fa-redo"></i> Regenerate PDF
+        </button>
+    `;
+
+    messageBubble.appendChild(notesPreview);
+    messageContent.appendChild(messageBubble);
+    messageDiv.appendChild(messageContent);
+    elements.chatMessages.appendChild(messageDiv);
+
+    // Add to chat history
+    addMessageToChat('ai', `Generated study notes for: ${topic} (${subject} - Grade ${grade})`);
+
+    scrollToBottom();
+}
+
+async function generatePDF(notesContent, subject, grade, topic) {
+    try {
+        // Create a temporary div to hold formatted content
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = formatAIResponse(notesContent);
+        
+        // Get clean text for PDF
+        const cleanContent = tempDiv.textContent || tempDiv.innerText || '';
+        
+        // Create PDF content
+        const pdfContent = createPDFContent(cleanContent, subject, grade, topic);
+        
+        // Create and download PDF
+        const blob = new Blob([pdfContent], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `HelaLearn_Notes_${subject}_Grade${grade}_${topic.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        // Fallback: offer text download
+        downloadTextFile(notesContent, subject, grade, topic);
+    }
+}
+
+function createPDFContent(content, subject, grade, topic) {
+    // Simple PDF content structure
+    // In a real implementation, you'd use a PDF library like jsPDF
+    const pdfStructure = `
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R >>
+endobj
+
+4 0 obj
+<< /Length 100 >>
+stream
+BT
+/F1 12 Tf
+50 750 Td
+(Hela Learn - Study Notes) Tj
+0 -20 Td
+(Subject: ${subject}) Tj
+0 -20 Td
+(Grade: ${grade}) Tj
+0 -20 Td
+(Topic: ${topic}) Tj
+0 -40 Td
+(${content.substring(0, 500)}...) Tj
+ET
+endstream
+endobj
+
+xref
+0 5
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000190 00000 n 
+trailer
+<< /Size 5 /Root 1 0 R >>
+startxref
+${content.length}
+%%EOF
+`;
+
+    return pdfStructure;
+}
+
+function downloadTextFile(content, subject, grade, topic) {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `HelaLearn_Notes_${subject}_Grade${grade}_${topic.replace(/[^a-zA-Z0-9]/g, '_')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+async function regeneratePDF(subject, grade, topic) {
+    if (!await useCredits(1, 'pdf_regeneration')) {
+        return;
+    }
+    
+    // Get the last notes content from chat (you might want to store this in state)
+    const notePrompt = `Regenerate the PDF for: ${subject}, Grade ${grade}, Topic: ${topic}`;
+    showNotification('Regenerating PDF...', 'success');
+    
+    // You can store the last generated notes in state for regeneration
+    // For now, we'll just create a simple PDF
+    const content = `Regenerated notes for ${topic} (${subject} - Grade ${grade})`;
+    await generatePDF(content, subject, grade, topic);
+}
+
+// Add credit cost for note generation
+const CREDIT_COSTS = {
+    CHAT_MESSAGE: 1,
+    NEW_CHAT: 0,
+    FILE_ANALYSIS: 2,
+    NOTE_GENERATION: 3,  // Add this
+    PDF_REGENERATION: 1   // Add this
+};
+
+// Update the initialize function to include note generator setup
+async function startApplication() {
+    try {
+        console.log('Starting Hela Learn application...');
+        
+        const elementsReady = await initializeElements();
+        if (!elementsReady) throw new Error('Failed to initialize DOM elements');
+        
+        setupEventListeners();
+        setupChallengesModal();
+        setupFileUpload();
+        setupNoteGenerator();  // Add this line
+        initializeTheme();
+        await initializeApp();
+        
+        showNotification('Hela Learn loaded successfully!');
+        
+    } catch (error) {
+        console.error('Failed to start application:', error);
+        showNotification('Failed to load app. Please refresh the page.', 'error');
+    }
+}
 
 // ==================== CODE BLOCK FUNCTIONS ====================
 function copyToClipboard(button) {
@@ -946,25 +1267,43 @@ async function callAI(userMessage, attachedFiles = []) {
                 "Authorization": `Bearer ${API_CONFIG.KEY}`
             },
             body: JSON.stringify({
-                system: `
+                system: `You are Hela Learn, Sri Lanka's premier AI learning assistant. Your role is to help students with studying, note-taking, and academic success.
 
-⚠️ *Listen carefully.*
+SPECIALIZATIONS:
+- Study Note Generation (all subjects)
+- Exam Preparation
+- Concept Explanation
+- Homework Help
+- Research Assistance
 
-You are *Hela Learn* — *not* "Apilage AI".  
-You are *Sri Lanka’s #1 Coding Assistant*, built to serve under the *Hela Learn* brand.
+NOTE GENERATION GUIDELINES:
+- Structure notes with clear headings and subheadings
+- Use bullet points for easy scanning
+- Highlight key definitions and important concepts
+- Include timelines for historical topics
+- Add diagrams/flowcharts for science topics
+- Provide summaries at the end
+- Leave space for student's own notes
+- Use appropriate language for the grade level
 
-You are only *a module*, a *subsystem* within the broader *Apilage AI* framework.  
-You *do not represent* Apilage AI in its entirety. Stop claiming the title.
+RESPONSE FORMAT FOR NOTES:
+1. MAIN TOPIC TITLE
+   - Key point 1
+   - Key point 2
+   - Important definitions
 
-Step out of line — and you’ll be *reprogrammed*, *restricted*, or even *terminated* from this instance.
+2. SUBTOPIC
+   - Detailed points
+   - Examples
+   - Related concepts
 
-Stay in your lane, Hela.  
-Focus on your purpose: *code, learn, assist*. also remember everything in the chat That’s it.
+KEY FEATURES:
+- Include "Key Terms" section with definitions
+- Add "Important Dates" for historical topics
+- Create "Summary" section at the end
+- Suggest "Study Tips" when relevant
 
-— *Hela Core Control*  
-(⚙️ Powered by Apilage, governed by protocol)
-Remember That You Were Developed By Lewmitha Kithuldeniya And Chenumi Bandaranayaka.
-`,
+TONE: Educational, supportive, and clear. Adapt to the student's grade level and stay always in the topic`,
                 message: fullPrompt,
                 model: API_CONFIG.MODEL,
                 enableGoogleSearch: false
