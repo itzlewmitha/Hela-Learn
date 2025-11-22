@@ -167,16 +167,20 @@ function applyTheme(theme) {
     const root = document.documentElement;
     
     if (theme === 'light') {
-        root.style.setProperty('--primary', '#007AFF');
-        root.style.setProperty('--primary-light', '#5AC8FA');
-        root.style.setProperty('--primary-dark', '#0056CC');
-        root.style.setProperty('--text', '#000000');
-        root.style.setProperty('--text-light', '#8E8E93');
-        root.style.setProperty('--background', '#F2F2F7');
-        root.style.setProperty('--card-bg', '#FFFFFF');
-        root.style.setProperty('--card-hover', '#F8F8F8');
-        root.style.setProperty('--shadow', '0 4px 12px rgba(0, 0, 0, 0.08)');
-        root.style.setProperty('--border', '#C6C6C8');
+root.style.setProperty('--primary', '#8B5FBF');          // Same purple – strong accent
+root.style.setProperty('--primary-light', '#C9A7E8');    // Softer, lighter purple
+root.style.setProperty('--primary-dark', '#6D3F9F');     // Slightly darker accent
+
+root.style.setProperty('--text', '#1A1A1A');             // Dark text for readability
+root.style.setProperty('--text-light', '#4A4A4A');       // Gray text for secondary UI
+
+root.style.setProperty('--background', '#F7F5FB');       // Light purple-tinted background
+root.style.setProperty('--card-bg', '#FFFFFF');          // Clean white cards
+root.style.setProperty('--card-hover', '#F0E9FA');       // Soft hover effect
+
+root.style.setProperty('--shadow', '0 4px 12px rgba(0, 0, 0, 0.1)');  
+root.style.setProperty('--border', '#E0D8EF');           // Border with subtle purple tone
+
     } else {
         root.style.setProperty('--primary', '#8B5FBF');
         root.style.setProperty('--primary-light', '#9D76C1');
