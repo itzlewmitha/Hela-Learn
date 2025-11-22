@@ -26,9 +26,7 @@ let state = {
     firestoreEnabled: true,
     theme: localStorage.getItem('helaTheme') || 'dark',
     userProgress: {
-        challenges: [],
         credits: 50,
-        level: 1,
         xp: 0,
         lastActive: null,
         monthlyCreditsClaimed: false,
@@ -41,58 +39,6 @@ let state = {
         }
     }
 };
-
-// ==================== CHALLENGES DATA ====================
-const CHALLENGES = [
-    {
-        id: 'first_chat',
-        title: 'First Conversation',
-        description: 'Send your first message to Hela Learn',
-        reward: 10,
-        completed: false,
-        type: 'one-time'
-    },
-    {
-        id: 'code_question',
-        title: 'Code Master',
-        description: 'Ask 5 coding-related questions',
-        reward: 25,
-        completed: false,
-        type: 'one-time',
-        target: 5,
-        progress: 0
-    },
-    {
-        id: 'daily_user',
-        title: 'Daily Learner',
-        description: 'Use Hela Learn for 3 consecutive days',
-        reward: 50,
-        completed: false,
-        type: 'one-time',
-        target: 3,
-        progress: 0
-    },
-    {
-        id: 'chat_creator',
-        title: 'Chat Creator',
-        description: 'Create 3 different chat sessions',
-        reward: 30,
-        completed: false,
-        type: 'one-time',
-        target: 3,
-        progress: 0
-    },
-    {
-        id: 'file_uploader',
-        title: 'File Helper',
-        description: 'Upload 3 files for analysis',
-        reward: 20,
-        completed: false,
-        type: 'one-time',
-        target: 3,
-        progress: 0
-    }
-];
 
 // ==================== DOM ELEMENTS ====================
 let elements = {};
