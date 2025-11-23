@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hela Learn — Your Sri Lankan AI Learning Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --primary: #8B5FBF;
+      --primary-light: #9D76C1;
+      --primary-dark: #6D3F9F;
+      --text: #FFFFFF;
+      --text-light: #B0B0B0;
+      --background: #121212;
+      --card-bg: #1E1E1E;
+      --card-hover: #252525;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      --transition: all 0.3s ease;
+      --success: #4CAF50;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    /* Header */
+    header {
+      padding: 20px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card-bg);
+      padding: 8px 16px;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      font-weight: 500;
+    }
+    
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: var(--success);
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+    }
+    
+    /* Navigation Links */
+    .nav-links {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+    
+    .nav-link {
+      color: var(--text-light);
+      text-decoration: none;
+      transition: var(--transition);
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+    
+    .nav-link:hover, .nav-link.active {
+      color: var(--primary);
+    }
+    
+    /* Mobile menu button */
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 80px 0 60px;
+    }
+    
+    .logo-animated {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--primary);
+      position: relative;
+      display: inline-block;
+    }
+    
+    .logo-animated::after {
+      content: '';
+      position: absolute;
+      right: -15px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 50px;
+      background-color: var(--primary);
+      animation: blink 1s infinite;
+    }
+    
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    
+    .tagline {
+      font-size: 1.4rem;
+      color: var(--text-light);
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .cta-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 80px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      box-shadow: 0 4px 15px rgba(139, 95, 191, 0.3);
+    }
+    
+    .btn-secondary {
+      background: var(--card-bg);
+      color: var(--primary);
+      box-shadow: var(--shadow);
+    }
+    
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(139, 95, 191, 0.4);
+    }
+    
+    /* Info Tiles */
+    .info-section {
+      padding: 60px 0 100px;
+    }
+    
+    .info-tiles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+    
+    .tile {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      cursor: pointer;
+      text-align: center;
+    }
+    
+    .tile:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      background: var(--card-hover);
+    }
+    
+    .tile-icon {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: var(--primary);
+    }
+    
+    .tile-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: var(--text);
+    }
+    
+    .tile-description {
+      color: var(--text-light);
+      font-size: 1rem;
+    }
+    
+    /* Supporters Section */
+    .section {
+      padding: 60px 0;
+    }
+    
+    .section-title {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 40px;
+      color: var(--primary);
+    }
+    
+    .mood-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .mood-item {
+      background: var(--card-bg);
+      border: none;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .mood-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      background: var(--card-hover);
+    }
+    
+    .mood-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(139, 95, 191, 0.1);
+    }
+    
+    .mood-item h3 {
+      color: var(--text);
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    
+    /* Contact Form */
+    .contact-section {
+      padding: 60px 0;
+      background: var(--card-bg);
+      margin: 40px 0;
+      border-radius: 16px;
+    }
+    
+    .contact-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .form-label {
+      color: var(--text);
+      font-weight: 500;
+    }
+    
+    .form-input, .form-textarea {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: var(--text);
+      font-size: 1rem;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+    
+    .form-input:focus, .form-textarea:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 10px rgba(139, 95, 191, 0.4);
+    }
+    
+    .form-textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    
+    .submit-btn {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      font-size: 1rem;
+      margin-top: 10px;
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(139, 95, 191, 0.4);
+    }
+    
+    /* Footer */
+    footer {
+      background: var(--card-bg);
+      padding: 40px 0 20px;
+      border-top: 1px solid rgba(139, 95, 191, 0.2);
+    }
+    
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+    
+    .footer-main {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    
+    .footer-logo {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .footer-logo-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .footer-link {
+      color: var(--text-light);
+      text-decoration: none;
+      transition: var(--transition);
+      font-size: 0.9rem;
+    }
+    
+    .footer-link:hover {
+      color: var(--primary);
+    }
+    
+    .social-links {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .social-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 50%;
+      color: var(--text);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    
+    .social-link:hover {
+      background: var(--primary);
+      transform: translateY(-3px);
+    }
+    
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .copyright {
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+    
+    .version {
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+    
+    /* Background Animation */
+    .background-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+    
+    .floating-element {
+      position: absolute;
+      opacity: 0.03;
+      font-size: 24px;
+      color: var(--primary);
+      animation: float 15s infinite linear;
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.03;
+      }
+      90% {
+        opacity: 0.03;
+      }
+      100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+    
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: var(--text-light);
+    }
+    
+    .modal-title {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: var(--primary);
+    }
+    
+    .modal-text {
+      color: var(--text-light);
+      line-height: 1.6;
+    }
+    
+    .policy-section {
+      margin-bottom: 25px;
+    }
+    
+    .policy-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .policy-content {
+      padding-left: 10px;
+      border-left: 2px solid var(--primary-light);
+      margin-left: 5px;
+    }
+    
+    .policy-list {
+      list-style-type: none;
+      margin: 10px 0;
+    }
+    
+    .policy-list li {
+      margin-bottom: 8px;
+      padding-left: 20px;
+      position: relative;
+    }
+    
+    .policy-list li:before {
+      content: "•";
+      color: var(--primary);
+      position: absolute;
+      left: 0;
+    }
+    
+    .warning-text {
+      color: #ff6b6b;
+      font-weight: 500;
+    }
+    
+    .success-text {
+      color: #4CAF50;
+      font-weight: 500;
+    }
+    
+    .contact-info {
+      background: rgba(139, 95, 191, 0.1);
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    
+    /* Responsive styles for navigation */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background: var(--card-bg);
+        flex-direction: column;
+        padding: 20px;
+        gap: 15px;
+        box-shadow: var(--shadow);
+        z-index: 99;
+      }
+      
+      .nav-links.active {
+        display: flex;
+      }
+      
+      .mobile-menu-btn {
+        display: block;
+      }
+      
+      .nav-link {
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        width: 100%;
+        text-align: center;
+      }
+      
+      .nav-link:last-child {
+        border-bottom: none;
+      }
+      
+      .logo-animated {
+        font-size: 2.5rem;
+      }
+      
+      .tagline {
+        font-size: 1.2rem;
+      }
+      
+      .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .btn {
+        width: 200px;
+      }
+      
+      .footer-main {
+        flex-direction: column;
+        gap: 30px;
+        text-align: center;
+      }
+      
+      .footer-links {
+        align-items: center;
+      }
+      
+      .footer-bottom {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+      
+      .hero {
+        padding: 60px 0 40px;
+      }
+      
+      .modal-content {
+        max-height: 85vh;
+        padding: 20px;
+      }
+      
+      .mood-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .info-tiles {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .mood-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .logo-animated {
+        font-size: 2rem;
+      }
+      
+      .section-title {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Animation -->
+  <div class="background-animation" id="backgroundAnimation"></div>
+  
+  <!-- Header -->
+  <header class="container">
+    <a href="/" class="logo">
+      <div class="logo-icon">
+        <i class="fas fa-graduation-cap"></i>
+      </div>
+      <span>Hela Learn</span>
+    </a>
+    
+    <!-- Navigation Links -->
+    <div class="nav-links">
+      <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+      </button>
+      <a href="/" class="nav-link active">Home</a>
+      <a href="/help" class="nav-link">Help Center</a>
+      <a href="https://helalearn.betteruptime.com/" class="nav-link">Status Page</a>
+    </div>
+    
+    <div class="status-indicator">
+      <div class="status-dot"></div>
+      <span>All Systems Operational</span>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero container">
+    <h1 class="logo-animated" id="animatedLogo">Hela Learn</h1>
+    <p class="tagline">Your all-in-one AI tutor — from coding to Q-papers</p>
+    <div class="cta-buttons">
+      <button class="btn btn-primary" id="launchBtn">Launch Assistant</button>
+      <a href="https://www.buymeacoffee.com/itz_lewmitha" class="btn btn-secondary">
+        <i class="fas fa-heart"></i> Donate Us
+      </a>
+    </div>
+  </section>
+  
+  <!-- Info Tiles -->
+  <section class="info-section container">
+    <div class="info-tiles">
+      <div class="tile" data-modal="what-is-hela">
+        <div class="tile-icon">💬</div>
+        <h3 class="tile-title">What is Hela Learn?</h3>
+        <p class="tile-description">Your AI partner for code, logic, and learning.</p>
+      </div>
+      <div class="tile" data-modal="how-credits-work">
+        <div class="tile-icon">⚡</div>
+        <h3 class="tile-title">How Credits Work</h3>
+        <p class="tile-description">Each message uses small credit units. Reload anytime.</p>
+      </div>
+      <div class="tile" data-modal="privacy-safety">
+        <div class="tile-icon">🔒</div>
+        <h3 class="tile-title">Privacy & Safety</h3>
+        <p class="tile-description">Your chats stays yours. We never store personal data.</p>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Supporters Section -->
+  <section class="section" id="social-media">
+    <div class="container">
+      <h2 class="section-title">Supporters</h2>
+      <div class="mood-grid">
+        <button class="mood-item" onclick="window.open('https://www.apilageai.lk', '_blank')">
+          <div class="mood-icon">
+            <i class="fas fa-robot" style="font-size: 2rem; color: var(--primary);"></i>
+          </div>
+          <h3>Apilage Ai</h3>
+        </button>
+        <button class="mood-item" onclick="window.open('https://www.globbook.com', '_blank')">
+          <div class="mood-icon">
+            <i class="fas fa-book" style="font-size: 2rem; color: var(--primary);"></i>
+          </div>
+          <h3>Globbook</h3>
+        </button>
+        <button class="mood-item" onclick="window.open('https://www.github.com', '_blank')">
+          <div class="mood-icon">
+            <i class="fab fa-github" style="font-size: 2rem; color: var(--primary);"></i>
+          </div>
+          <h3>Github</h3>
+        </button>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Contact Form -->
+  <section class="contact-section">
+    <div class="container contact-container">
+      <h2 class="section-title">Contact Us</h2>
+      <form class="contact-form" id="contactForm">
+        <div class="form-group">
+          <label class="form-label" for="name">Your Name</label>
+          <input type="text" id="name" class="form-input" placeholder="Enter your name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="email">Your Email</label>
+          <input type="email" id="email" class="form-input" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="subject">Subject</label>
+          <input type="text" id="subject" class="form-input" placeholder="What is this regarding?" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="message">Your Message</label>
+          <textarea id="message" class="form-textarea" placeholder="Tell us how we can help..." required></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Send Message</button>
+      </form>
+    </div>
+  </section>
+  
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-content">
+      <div class="footer-main">
+        <div class="footer-logo">
+          <div class="footer-logo-text">Hela Learn</div>
+          <div class="footer-links">
+            <a href="#" class="footer-link" data-modal="privacy-policy">Privacy Policy</a>
+            <a href="#" class="footer-link" data-modal="terms-conditions">Terms & Conditions</a>
+            <a href="#" class="footer-link" data-modal="contact-support">Contact / Support</a>
+          </div>
+        </div>
+        <div class="social-links">
+          <a href="#" class="social-link">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="https://www.linkedin.com/in/lewmitha-kithuldeniya-246913361/" class="social-link">
+            <i class="fab fa-linkedin"></i>
+          </a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="copyright">© Made By Pix Studios With Apilage Ai</div>
+        <div class="version">v1.4 – Beta</div>
+      </div>
+    </div>
+  </footer>
+  
+  <!-- Modals -->
+  <div class="modal" id="what-is-hela-modal">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <h3 class="modal-title">What is HelaLearn?</h3>
+      <p class="modal-text">
+        HelaLearn is Sri Lanka's smart AI learning assistant built for students and developers. 
+        It helps you scan question papers, understand answers, learn concepts, and even generate 
+        or debug code. Whether you're studying or building something new, HelaLearn guides you 
+        step-by-step.
+      </p>
+    </div>
+  </div>
+
+  <div class="modal" id="how-credits-work-modal">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <h3 class="modal-title">How Credits Work</h3>
+      <p class="modal-text">
+        Credits are used to interact with HelaLearn's AI features. Each question, scan, or 
+        message uses a small number of credits depending on complexity. You can reload credits 
+        anytime through secure payment options. Your unused credits never expire.
+      </p>
+    </div>
+  </div>
+
+  <div class="modal" id="privacy-safety-modal">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <h3 class="modal-title">Privacy & Safety</h3>
+      <p class="modal-text">
+        Your privacy is protected with end-to-end security. Question paper scans, code, and 
+        conversations are processed safely and not stored after your session. We never share 
+        your data with third parties. Everything you create with HelaLearn remains fully yours.
+      </p>
+    </div>
+  </div>
+  
+  <div class="modal" id="privacy-policy-modal">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <h3 class="modal-title">🔐 Privacy Policy</h3>
+      <div class="modal-text">
+        <!-- Privacy policy content remains the same -->
+        <div class="policy-section">
+          <div class="policy-title">
+            <i class="fas fa-info-circle"></i>
+            <span>1. Information We Collect</span>
+          </div>
+          <div class="policy-content">
+            <p>We collect only minimal technical data needed to keep the app running:</p>
+            <ul class="policy-list">
+              <li>Anonymous usage stats (page loads, clicks)</li>
+              <li>Optional account info (email / username / credit balance)</li>
+              <li>Payment details handled only by your chosen provider</li>
+            </ul>
+          </div>
+        </div>
+        <!-- Add other policy sections as needed -->
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal" id="terms-conditions-modal">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <h3 class="modal-title">📜 Terms & Conditions</h3>
+      <div class="modal-text">
+        <!-- Terms content remains the same -->
+        <div class="policy-section">
+          <div class="policy-title">
+            <i class="fas fa-check-circle"></i>
+            <span>1. Acceptance of Terms</span>
+          </div>
+          <div class="policy-content">
+            <p>By using Hela Learn, you agree to these terms. If you disagree, please stop using the service.</p>
+          </div>
+        </div>
+        <!-- Add other terms sections as needed -->
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal" id="contact-support-modal">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <h3 class="modal-title">Contact / Support</h3>
+      <div class="modal-text">
+        <p>Need help? Our support team is available to assist you with any questions or issues.</p>
+        <div class="contact-info">
+          <div class="policy-title">
+            <i class="fas fa-envelope"></i>
+            <span>Email Support</span>
+          </div>
+          <div class="policy-content">
+            <p>Contact us via email at: <strong>help@helalearn.lk</strong></p>
+            <p>We typically respond within <strong>24 hours</strong>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkZ1COLT59ukLGzpv5lW3UZ8vQ9tEN1gw",
+      authDomain: "hela-code.firebaseapp.com",
+      projectId: "hela-code",
+      storageBucket: "hela-code.appspot.com",
+      messagingSenderId: "813299203715",
+      appId: "1:813299203715:web:910e7227cdd4a09ad1a5b6"
+    };
+
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    const auth = firebase.auth();
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+      // Animate logo typing effect
+      const logoElement = document.getElementById('animatedLogo');
+      const logoText = logoElement.textContent;
+      logoElement.textContent = '';
+      
+      let i = 0;
+      function typeLogo() {
+        if (i < logoText.length) {
+          logoElement.textContent += logoText.charAt(i);
+          i++;
+          setTimeout(typeLogo, 150);
+        }
+      }
+      
+      setTimeout(typeLogo, 500);
+      
+      // Create background animation
+      const backgroundAnimation = document.getElementById('backgroundAnimation');
+      const sinhalaChars = 'අආඇඈඉඊඋඌඍඎඏඐඑඒඓඔඕඖකඛගඝඞඟචඡජඣඤඥඦටඨඩඪණඬතථදධනඳපඵබභමඹයරලවශෂසහළෆ';
+      
+      for (let i = 0; i < 20; i++) {
+        const element = document.createElement('div');
+        element.className = 'floating-element';
+        element.textContent = sinhalaChars[Math.floor(Math.random() * sinhalaChars.length)];
+        element.style.left = Math.random() * 100 + 'vw';
+        element.style.animationDelay = Math.random() * 15 + 's';
+        element.style.fontSize = (Math.random() * 20 + 16) + 'px';
+        backgroundAnimation.appendChild(element);
+      }
+      
+      // Modal functionality
+      const modals = document.querySelectorAll('.modal');
+      const modalTriggers = document.querySelectorAll('[data-modal]');
+      const closeButtons = document.querySelectorAll('.modal-close');
+      
+      modalTriggers.forEach(trigger => {
+        trigger.addEventListener('click', function(e) {
+          e.preventDefault();
+          const modalId = this.getAttribute('data-modal') + '-modal';
+          const modal = document.getElementById(modalId);
+          if (modal) {
+            modal.classList.add('active');
+          }
+        });
+      });
+      
+      closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const modal = this.closest('.modal');
+          if (modal) {
+            modal.classList.remove('active');
+          }
+        });
+      });
+      
+      // Close modal when clicking outside content
+      modals.forEach(modal => {
+        modal.addEventListener('click', function(e) {
+          if (e.target === this) {
+            this.classList.remove('active');
+          }
+        });
+      });
+      
+      // Launch button functionality - SIMPLE FIX
+      document.getElementById('launchBtn').addEventListener('click', function() {
+        // Always redirect to auth page
+        window.location.href = '/auth/';
+      });
+      
+      // Contact form functionality
+      document.getElementById('contactForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('Thank you for your message! We will get back to you soon.');
+        this.reset();
+      });
+      
+      // Mobile menu functionality
+      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      const navLinks = document.querySelector('.nav-links');
+      
+      if (mobileMenuBtn && navLinks) {
+        mobileMenuBtn.addEventListener('click', function() {
+          navLinks.classList.toggle('active');
+          
+          // Change icon based on menu state
+          const icon = this.querySelector('i');
+          if (navLinks.classList.contains('active')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+          } else {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+          }
+        });
+        
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-link').forEach(link => {
+          link.addEventListener('click', function() {
+            navLinks.classList.remove('active');
+            mobileMenuBtn.querySelector('i').classList.remove('fa-times');
+            mobileMenuBtn.querySelector('i').classList.add('fa-bars');
+          });
+        });
+      }
+
+      // Check if user is already logged in (for future features)
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          console.log('User logged in:', user.email);
+          // You can add logged-in specific features here
+        }
+      });
+    });
+  </script>
+</body>
+</html>
