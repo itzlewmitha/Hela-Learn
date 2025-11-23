@@ -1674,7 +1674,7 @@ KEY FEATURES FOR SRI LANKAN STUDENTS:
 TONE: Educational, supportive, culturally relevant, and clear. Adapt to the Sri Lankan curriculum standards and examination requirements.`,
                 message: fullPrompt,
                 model: API_CONFIG.MODEL,
-                enableGoogleSearch: false
+                enableGoogleSearch: true
             })
         });
 
