@@ -286,7 +286,7 @@
                 <div class="profile-pic-change">Click to upload</div>
             </div>
             <input type="file" id="profilePicUpload" class="profile-pic-upload" accept="image/*">
-            <div class="file-info">Max 2MB • 500x500px recommended</div>
+            <div class="file-info">Max 2MB  recommended</div>
         </div>
 
         <div class="auth-form">
@@ -449,20 +449,11 @@
             // Create preview
             const reader = new FileReader();
             reader.onload = function(e) {
-                // Check image dimensions
-                const img = new Image();
-                img.onload = function() {
-                    if (img.width > 500 || img.height > 500) {
-                        showError('Image dimensions should be 500x500px or smaller');
-                        elements.profilePicUpload.value = '';
-                        return;
-                    }
-                    
-                    elements.profilePicPreview.src = e.target.result;
-                    elements.profilePicPreview.style.display = 'block';
-                    elements.profilePicPlaceholder.style.display = 'none';
-                    hideError();
-                };
+                
+elements.profilePicPreview.src = e.target.result;
+elements.profilePicPreview.style.display = 'block';
+elements.profilePicPlaceholder.style.display = 'none';
+hideError();
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
