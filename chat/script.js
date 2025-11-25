@@ -1585,8 +1585,8 @@ function displayAIResponse(content) {
 // ==================== AI API WITH CONVERSATION MEMORY ====================
 const API_CONFIG = {
     URL: 'https://endpoint.apilageai.lk/api/chat',
-    KEY: 'apk_QngciclzfHi2yAfP3WvZgx68VbbONQTP',
-    MODEL: 'FREE'
+    KEY: 'apk_uwNTUYF4MADr8MLSX0xzKgMFbW6i2Pfb',
+    MODEL: 'PRO'
 };
 
 async function callAI(userMessage, attachedFiles = []) {
