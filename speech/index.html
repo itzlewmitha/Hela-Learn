@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hela Voice - AI Voice Assistant</title>
+    <title>Hela Voice - Real-time AI Assistant</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -124,32 +124,253 @@
 
         /* Main Content */
         .main-container {
-            max-width: 1200px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 2rem 1rem;
             min-height: calc(100vh - 80px);
+            display: flex;
+            flex-direction: column;
         }
 
+        /* Voice Interface */
+        .voice-interface {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .conversation-area {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            min-height: 400px;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: var(--background);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .message {
+            margin-bottom: 1.5rem;
+            padding: 1rem 1.5rem;
+            border-radius: 18px;
+            max-width: 85%;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            background: var(--primary);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 6px;
+        }
+
+        .message.ai {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            margin-right: auto;
+            border-bottom-left-radius: 6px;
+        }
+
+        .message.thinking {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            margin-right: auto;
+            border-bottom-left-radius: 6px;
+            opacity: 0.8;
+        }
+
+        .message-content {
+            line-height: 1.5;
+            font-size: 1rem;
+        }
+
+        .thinking-dots {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .thinking-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-light);
+            animation: thinking 1.4s infinite ease-in-out;
+        }
+
+        .thinking-dot:nth-child(1) { animation-delay: -0.32s; }
+        .thinking-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes thinking {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* Voice Controls */
         .voice-controls {
             background: var(--card-bg);
             border-radius: 16px;
             padding: 2rem;
-            margin-bottom: 2rem;
             box-shadow: var(--shadow);
-        }
-
-        .voice-title {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            color: var(--primary);
             text-align: center;
         }
 
-        .voice-settings {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        .voice-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .status-dot.listening {
+            background: var(--primary);
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-dot.speaking {
+            background: var(--warning);
+            animation: pulse 0.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .voice-visualizer {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 30px;
+        }
+
+        .voice-bar {
+            width: 3px;
+            background: var(--primary);
+            border-radius: 2px;
+            transition: all 0.1s ease;
+        }
+
+        .main-controls {
+            display: flex;
+            justify-content: center;
             gap: 1.5rem;
-            margin-bottom: 2rem;
+            align-items: center;
+        }
+
+        .voice-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .voice-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(139, 95, 191, 0.4);
+        }
+
+        .voice-btn.listening {
+            background: var(--error);
+            animation: listeningPulse 1s infinite;
+        }
+
+        @keyframes listeningPulse {
+            0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(244, 67, 54, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .action-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .action-btn:hover {
+            background: var(--card-hover);
+            border-color: var(--primary);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .settings-title {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
         }
 
         .setting-group {
@@ -170,7 +391,7 @@
             border-radius: 8px;
             padding: 0.75rem;
             color: var(--text);
-            font-size: 1rem;
+            font-size: 0.9rem;
             transition: var(--transition);
         }
 
@@ -180,225 +401,41 @@
             box-shadow: 0 0 10px rgba(139, 95, 191, 0.4);
         }
 
-        /* Voice Controls */
-        .voice-actions {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .record-btn {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .record-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 25px rgba(139, 95, 191, 0.4);
-        }
-
-        .record-btn.recording {
-            background: var(--error);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .action-btn {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .action-btn:hover {
-            background: var(--card-hover);
-            border-color: var(--primary);
-        }
-
-        .action-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        /* Chat Interface */
-        .chat-interface {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: var(--shadow);
-            height: 400px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
-            background: var(--background);
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
-
-        .message {
-            margin-bottom: 1rem;
-            padding: 1rem;
-            border-radius: 12px;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-        }
-
-        .message.user {
-            background: var(--primary);
-            color: white;
-            margin-left: 2rem;
-        }
-
-        .message.ai {
-            background: var(--card-bg);
-            margin-right: 2rem;
-        }
-
-        .message-header {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            font-size: 0.8rem;
-            opacity: 0.8;
-        }
-
-        .message-content {
-            line-height: 1.5;
-        }
-
-        .audio-player {
-            width: 100%;
-            margin-top: 0.5rem;
-        }
-
-        /* Status Indicators */
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--text-light);
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--success);
-        }
-
-        .status-dot.recording {
-            background: var(--error);
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.3; }
-        }
-
-        /* Loading Animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: var(--primary);
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
         /* Mobile Responsive */
         @media (max-width: 768px) {
-            .header-content {
-                padding: 0 1rem;
-            }
-
-            .logo {
-                font-size: 1.1rem;
-            }
-
-            .logo-icon {
-                width: 32px;
-                height: 32px;
-            }
-
             .main-container {
                 padding: 1rem;
             }
 
+            .conversation-area,
             .voice-controls,
-            .chat-interface {
+            .settings-panel {
                 padding: 1.5rem;
             }
 
-            .voice-settings {
-                grid-template-columns: 1fr;
+            .message {
+                max-width: 90%;
+                padding: 1rem;
+            }
+
+            .main-controls {
+                flex-direction: column;
                 gap: 1rem;
             }
 
-            .record-btn {
-                width: 70px;
-                height: 70px;
+            .voice-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 1.25rem;
             }
 
             .action-buttons {
-                flex-direction: column;
                 width: 100%;
-            }
-
-            .action-btn {
                 justify-content: center;
             }
 
-            .chat-interface {
-                height: 300px;
-            }
-
-            .message {
-                margin-left: 0.5rem;
-                margin-right: 0.5rem;
+            .settings-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -406,22 +443,20 @@
             .header-content {
                 flex-direction: column;
                 gap: 1rem;
-                text-align: center;
             }
 
-            .user-menu {
-                width: 100%;
-                justify-content: center;
+            .messages-container {
+                padding: 0.75rem;
             }
 
-            .voice-title {
-                font-size: 1.25rem;
+            .message {
+                max-width: 95%;
+                padding: 0.75rem;
             }
 
-            .record-btn {
-                width: 60px;
-                height: 60px;
-                font-size: 1.25rem;
+            .voice-indicator {
+                flex-direction: column;
+                gap: 0.5rem;
             }
         }
 
@@ -434,30 +469,13 @@
             text-align: center;
         }
 
-        .mt-2 {
-            margin-top: 2rem;
-        }
-
-        .mb-1 {
-            margin-bottom: 1rem;
-        }
-
         .error {
             color: var(--error);
             background: rgba(244, 67, 54, 0.1);
             padding: 0.75rem;
             border-radius: 8px;
             border: 1px solid var(--error);
-            margin: 1rem 0;
-        }
-
-        .success {
-            color: var(--success);
-            background: rgba(76, 175, 80, 0.1);
-            padding: 0.75rem;
-            border-radius: 8px;
-            border: 1px solid var(--success);
-            margin: 1rem 0;
+            margin: 0.5rem 0;
         }
     </style>
 </head>
@@ -484,79 +502,68 @@
 
     <!-- Main Content -->
     <main class="main-container">
-        <!-- Voice Controls -->
-        <section class="voice-controls">
-            <h2 class="voice-title">Voice Assistant</h2>
-            
-            <div class="voice-settings">
-                <div class="setting-group">
-                    <label class="setting-label">Voice Type</label>
-                    <select class="setting-select" id="voiceType">
-                        <option value="male">Male Voice</option>
-                        <option value="female">Female Voice</option>
-                    </select>
-                </div>
-                
-                <div class="setting-group">
-                    <label class="setting-label">Speech Speed</label>
-                    <select class="setting-select" id="speechSpeed">
-                        <option value="0.8">Slow</option>
-                        <option value="1" selected>Normal</option>
-                        <option value="1.2">Fast</option>
-                    </select>
-                </div>
-                
-                <div class="setting-group">
-                    <label class="setting-label">Language</label>
-                    <select class="setting-select" id="language">
-                        <option value="en" selected>English</option>
-                        <option value="si">Sinhala</option>
-                        <option value="ta">Tamil</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="voice-actions">
-                <div class="status-indicator">
-                    <div class="status-dot" id="statusDot"></div>
-                    <span id="statusText">Ready to record</span>
-                </div>
-                
-                <button class="record-btn" id="recordBtn">
-                    <i class="fas fa-microphone"></i>
-                </button>
-                
-                <div class="action-buttons">
-                    <button class="action-btn" id="playBtn" disabled>
-                        <i class="fas fa-play"></i>
-                        <span>Play Response</span>
-                    </button>
-                    <button class="action-btn" id="stopBtn" disabled>
-                        <i class="fas fa-stop"></i>
-                        <span>Stop</span>
-                    </button>
-                    <button class="action-btn" id="clearBtn">
-                        <i class="fas fa-trash"></i>
-                        <span>Clear Chat</span>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Chat Interface -->
-        <section class="chat-interface">
-            <h3 class="voice-title">Conversation</h3>
-            <div class="chat-messages" id="chatMessages">
-                <div class="message ai">
-                    <div class="message-header">
-                        <strong>Hela Voice</strong>
-                    </div>
-                    <div class="message-content">
-                        Hello! I'm your voice assistant. Click the microphone button to start speaking with me.
+        <div class="voice-interface">
+            <!-- Conversation Area -->
+            <section class="conversation-area">
+                <h2 class="text-center" style="margin-bottom: 1.5rem; color: var(--primary);">Voice Conversation</h2>
+                <div class="messages-container" id="messagesContainer">
+                    <div class="message ai">
+                        <div class="message-content">
+                            Hello! I'm Hela Voice, your real-time AI assistant. Click the microphone button below to start speaking with me.
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+
+            <!-- Voice Controls -->
+            <section class="voice-controls">
+                <div class="voice-indicator">
+                    <div class="status-indicator">
+                        <div class="status-dot" id="statusDot"></div>
+                        <span id="statusText">Ready to listen</span>
+                    </div>
+                    <div class="voice-visualizer" id="voiceVisualizer">
+                        <!-- Voice bars will be generated dynamically -->
+                    </div>
+                </div>
+
+                <div class="main-controls">
+                    <button class="voice-btn" id="voiceBtn">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Settings -->
+            <section class="settings-panel">
+                <h3 class="settings-title">Voice Settings</h3>
+                <div class="settings-grid">
+                    <div class="setting-group">
+                        <label class="setting-label">Voice Type</label>
+                        <select class="setting-select" id="voiceType">
+                            <option value="male">Male Voice</option>
+                            <option value="female">Female Voice</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label class="setting-label">Speech Speed</label>
+                        <select class="setting-select" id="speechSpeed">
+                            <option value="0.8">Slow</option>
+                            <option value="1" selected>Normal</option>
+                            <option value="1.2">Fast</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label class="setting-label">Language</label>
+                        <select class="setting-select" id="language">
+                            <option value="en" selected>English</option>
+                            <option value="si">Sinhala</option>
+                            <option value="ta">Tamil</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+        </div>
     </main>
 
     <!-- Firebase SDK -->
@@ -585,31 +592,33 @@
         const elements = {
             themeToggle: document.getElementById('themeToggle'),
             userAvatar: document.getElementById('userAvatar'),
-            voiceType: document.getElementById('voiceType'),
-            speechSpeed: document.getElementById('speechSpeed'),
-            language: document.getElementById('language'),
-            recordBtn: document.getElementById('recordBtn'),
-            playBtn: document.getElementById('playBtn'),
-            stopBtn: document.getElementById('stopBtn'),
-            clearBtn: document.getElementById('clearBtn'),
+            voiceBtn: document.getElementById('voiceBtn'),
             statusDot: document.getElementById('statusDot'),
             statusText: document.getElementById('statusText'),
-            chatMessages: document.getElementById('chatMessages')
+            voiceVisualizer: document.getElementById('voiceVisualizer'),
+            messagesContainer: document.getElementById('messagesContainer'),
+            voiceType: document.getElementById('voiceType'),
+            speechSpeed: document.getElementById('speechSpeed'),
+            language: document.getElementById('language')
         };
 
         // State
         let state = {
-            isRecording: false,
+            isListening: false,
+            isSpeaking: false,
             mediaRecorder: null,
+            audioContext: null,
+            analyser: null,
             audioChunks: [],
-            currentAudio: null,
             currentUser: null,
-            theme: localStorage.getItem('helaVoiceTheme') || 'dark'
+            theme: localStorage.getItem('helaVoiceTheme') || 'dark',
+            recognition: null
         };
 
-        // Voice Synthesis
-        const speechSynthesis = window.speechSynthesis;
-        let currentUtterance = null;
+        // Web Speech API for speech recognition
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const SpeechGrammarList = window.SpeechGrammarList || window.webkitSpeechGrammarList;
+        const SpeechRecognitionEvent = window.SpeechRecognitionEvent || window.webkitSpeechRecognitionEvent;
 
         // API Configuration
         const API_CONFIG = {
@@ -622,23 +631,14 @@
         function initApp() {
             applyTheme(state.theme);
             setupEventListeners();
+            initializeSpeechRecognition();
+            initializeVoiceVisualizer();
             checkAuth();
         }
 
         function setupEventListeners() {
-            // Theme toggle
             elements.themeToggle.addEventListener('click', toggleTheme);
-            
-            // Voice controls
-            elements.recordBtn.addEventListener('click', toggleRecording);
-            elements.playBtn.addEventListener('click', playResponse);
-            elements.stopBtn.addEventListener('click', stopAudio);
-            elements.clearBtn.addEventListener('click', clearChat);
-            
-            // Settings changes
-            elements.voiceType.addEventListener('change', updateVoiceSettings);
-            elements.speechSpeed.addEventListener('change', updateVoiceSettings);
-            elements.language.addEventListener('change', updateVoiceSettings);
+            elements.voiceBtn.addEventListener('click', toggleListening);
         }
 
         // Theme Management
@@ -673,226 +673,284 @@
                 initial;
         }
 
-        // Voice Recording
-        async function toggleRecording() {
-            if (!state.isRecording) {
-                await startRecording();
+        // Speech Recognition
+        function initializeSpeechRecognition() {
+            if (!SpeechRecognition) {
+                showError('Speech recognition is not supported in this browser.');
+                return;
+            }
+
+            state.recognition = new SpeechRecognition();
+            state.recognition.continuous = false;
+            state.recognition.interimResults = true;
+            state.recognition.lang = 'en-US';
+
+            state.recognition.onstart = () => {
+                updateListeningUI(true);
+            };
+
+            state.recognition.onresult = (event) => {
+                let finalTranscript = '';
+                let interimTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript;
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+
+                // Update UI with interim results
+                if (interimTranscript) {
+                    updateInterimTranscript(interimTranscript);
+                }
+
+                // Process final result
+                if (finalTranscript) {
+                    processUserSpeech(finalTranscript);
+                }
+            };
+
+            state.recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                if (event.error !== 'no-speech') {
+                    showError('Speech recognition error: ' + event.error);
+                }
+                updateListeningUI(false);
+            };
+
+            state.recognition.onend = () => {
+                updateListeningUI(false);
+            };
+        }
+
+        function toggleListening() {
+            if (state.isListening) {
+                stopListening();
             } else {
-                stopRecording();
+                startListening();
             }
         }
 
-        async function startRecording() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                state.mediaRecorder = new MediaRecorder(stream);
-                state.audioChunks = [];
-
-                state.mediaRecorder.ondataavailable = (event) => {
-                    state.audioChunks.push(event.data);
-                };
-
-                state.mediaRecorder.onstop = processAudio;
-
-                state.mediaRecorder.start();
-                state.isRecording = true;
-                
-                updateRecordingUI(true);
-                
-            } catch (error) {
-                console.error('Error starting recording:', error);
-                showError('Microphone access denied. Please allow microphone permissions.');
+        function startListening() {
+            if (state.recognition) {
+                try {
+                    state.recognition.start();
+                } catch (error) {
+                    console.error('Error starting speech recognition:', error);
+                }
             }
         }
 
-        function stopRecording() {
-            if (state.mediaRecorder && state.isRecording) {
-                state.mediaRecorder.stop();
-                state.mediaRecorder.stream.getTracks().forEach(track => track.stop());
-                state.isRecording = false;
-                updateRecordingUI(false);
+        function stopListening() {
+            if (state.recognition) {
+                state.recognition.stop();
             }
         }
 
-        function updateRecordingUI(recording) {
-            const icon = elements.recordBtn.querySelector('i');
-            if (recording) {
-                elements.recordBtn.classList.add('recording');
+        function updateListeningUI(listening) {
+            state.isListening = listening;
+            const icon = elements.voiceBtn.querySelector('i');
+            
+            if (listening) {
+                elements.voiceBtn.classList.add('listening');
                 icon.className = 'fas fa-square';
-                elements.statusDot.classList.add('recording');
-                elements.statusText.textContent = 'Recording...';
+                elements.statusDot.classList.add('listening');
+                elements.statusText.textContent = 'Listening...';
             } else {
-                elements.recordBtn.classList.remove('recording');
+                elements.voiceBtn.classList.remove('listening');
                 icon.className = 'fas fa-microphone';
-                elements.statusDot.classList.remove('recording');
-                elements.statusText.textContent = 'Processing...';
+                elements.statusDot.classList.remove('listening');
+                elements.statusText.textContent = 'Ready to listen';
             }
         }
 
-        // Audio Processing
-        async function processAudio() {
-            try {
-                const audioBlob = new Blob(state.audioChunks, { type: 'audio/wav' });
-                
-                // Convert audio to text (using Web Speech API as fallback)
-                const text = await convertAudioToText(audioBlob);
-                
-                if (text) {
-                    addMessageToChat('user', text);
-                    await getAIResponse(text);
+        function updateInterimTranscript(transcript) {
+            // Remove any existing interim message
+            const existingInterim = document.querySelector('.message.interim');
+            if (existingInterim) {
+                existingInterim.remove();
+            }
+
+            if (transcript.trim()) {
+                const interimMessage = createMessage('user', transcript, true);
+                elements.messagesContainer.appendChild(interimMessage);
+                elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
+            }
+        }
+
+        // Voice Visualizer
+        function initializeVoiceVisualizer() {
+            // Create voice bars for visualizer
+            for (let i = 0; i < 20; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'voice-bar';
+                bar.style.height = '5px';
+                elements.voiceVisualizer.appendChild(bar);
+            }
+        }
+
+        function updateVoiceVisualizer(volume) {
+            const bars = elements.voiceVisualizer.querySelectorAll('.voice-bar');
+            const activeBars = Math.floor(volume * bars.length);
+            
+            bars.forEach((bar, index) => {
+                if (index < activeBars) {
+                    const height = 5 + (index * 1.5);
+                    bar.style.height = `${height}px`;
+                    bar.style.background = state.isListening ? 'var(--primary)' : 'var(--warning)';
+                    bar.style.opacity = 0.7 + (index * 0.015);
                 } else {
-                    showError('Could not understand audio. Please try again.');
-                    elements.statusText.textContent = 'Ready to record';
+                    bar.style.height = '5px';
+                    bar.style.opacity = '0.3';
                 }
-                
-            } catch (error) {
-                console.error('Error processing audio:', error);
-                showError('Error processing audio. Please try again.');
-                elements.statusText.textContent = 'Ready to record';
-            }
+            });
         }
 
-        async function convertAudioToText(audioBlob) {
-            // This is a simplified version - in production, you'd use a proper speech-to-text API
-            // For demo purposes, we'll use a placeholder
-            return "This is a demo transcription. In production, integrate with a proper speech-to-text service.";
-        }
-
-        // AI Integration
-        async function getAIResponse(userMessage) {
-            try {
-                elements.statusText.textContent = 'Getting response...';
-                
-                const response = await fetch(API_CONFIG.URL, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${API_CONFIG.KEY}`
-                    },
-                    body: JSON.stringify({
-                        system: "You are Hela Voice, a helpful voice assistant. Keep responses concise and natural for speech.",
-                        message: userMessage,
-                        model: API_CONFIG.MODEL,
-                        enableGoogleSearch: false
-                    })
-                });
-
-                if (!response.ok) throw new Error(`API error: ${response.status}`);
-
-                const result = await response.json();
-                
-                if (result.success && result.response) {
-                    addMessageToChat('ai', result.response);
-                    speakText(result.response);
-                    elements.statusText.textContent = 'Ready to record';
-                } else {
-                    throw new Error('Invalid API response');
-                }
-
-            } catch (error) {
-                console.error('AI API Error:', error);
-                showError('Failed to get response. Please try again.');
-                elements.statusText.textContent = 'Ready to record';
-            }
-        }
-
-        // Text-to-Speech
-        function speakText(text) {
-            if (currentUtterance) {
-                speechSynthesis.cancel();
-            }
-
-            currentUtterance = new SpeechSynthesisUtterance(text);
-            
-            // Configure voice settings
-            const voiceType = elements.voiceType.value;
-            const speed = parseFloat(elements.speechSpeed.value);
-            
-            currentUtterance.rate = speed;
-            currentUtterance.pitch = voiceType === 'male' ? 0.8 : 1.2;
-            currentUtterance.volume = 1;
-
-            // Get available voices and select based on type
-            const voices = speechSynthesis.getVoices();
-            const preferredVoice = voices.find(voice => 
-                voice.name.toLowerCase().includes(voiceType) || 
-                voice.lang.includes('en')
-            );
-            
-            if (preferredVoice) {
-                currentUtterance.voice = preferredVoice;
-            }
-
-            currentUtterance.onstart = () => {
-                elements.playBtn.disabled = true;
-                elements.stopBtn.disabled = false;
-            };
-
-            currentUtterance.onend = () => {
-                elements.playBtn.disabled = false;
-                elements.stopBtn.disabled = true;
-                currentUtterance = null;
-            };
-
-            speechSynthesis.speak(currentUtterance);
-        }
-
-        function playResponse() {
-            const lastAIMessage = document.querySelector('.message.ai:last-child .message-content');
-            if (lastAIMessage) {
-                speakText(lastAIMessage.textContent);
-            }
-        }
-
-        function stopAudio() {
-            if (currentUtterance) {
-                speechSynthesis.cancel();
-                elements.playBtn.disabled = false;
-                elements.stopBtn.disabled = true;
-            }
-        }
-
-        function updateVoiceSettings() {
-            if (currentUtterance) {
-                stopAudio();
-            }
-        }
-
-        // Chat Management
-        function addMessageToChat(sender, content) {
+        // Message Handling
+        function createMessage(sender, content, isInterim = false) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
+            messageDiv.className = `message ${sender} ${isInterim ? 'interim' : ''}`;
             
-            messageDiv.innerHTML = `
-                <div class="message-header">
-                    <strong>${sender === 'user' ? 'You' : 'Hela Voice'}</strong>
-                </div>
-                <div class="message-content">${content}</div>
-            `;
+            if (sender === 'thinking') {
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="thinking-dots">
+                            <div class="thinking-dot"></div>
+                            <div class="thinking-dot"></div>
+                            <div class="thinking-dot"></div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="message-content">${content}</div>
+                `;
+            }
             
-            elements.chatMessages.appendChild(messageDiv);
-            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+            return messageDiv;
         }
 
-        function clearChat() {
-            elements.chatMessages.innerHTML = `
-                <div class="message ai">
-                    <div class="message-header">
-                        <strong>Hela Voice</strong>
-                    </div>
-                    <div class="message-content">
-                        Hello! I'm your voice assistant. Click the microphone button to start speaking with me.
-                    </div>
-                </div>
-            `;
+        function addMessage(sender, content, isInterim = false) {
+            // Remove any interim message
+            const existingInterim = document.querySelector('.message.interim');
+            if (existingInterim && !isInterim) {
+                existingInterim.remove();
+            }
+
+            const message = createMessage(sender, content, isInterim);
+            elements.messagesContainer.appendChild(message);
+            elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
+            
+            return message;
+        }
+
+        // Speech Processing
+        async function processUserSpeech(transcript) {
+            // Add final user message
+            addMessage('user', transcript);
+            
+            // Show thinking indicator
+            const thinkingMessage = addMessage('thinking', '');
+            
+            try {
+                // Get AI response
+                const response = await getAIResponse(transcript);
+                
+                // Remove thinking indicator
+                thinkingMessage.remove();
+                
+                // Add AI response and speak it
+                addMessage('ai', response);
+                await speakText(response);
+                
+            } catch (error) {
+                thinkingMessage.remove();
+                showError('Failed to get response. Please try again.');
+            }
+        }
+
+        async function getAIResponse(userMessage) {
+            const response = await fetch(API_CONFIG.URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${API_CONFIG.KEY}`
+                },
+                body: JSON.stringify({
+                    system: "You are Hela Voice, a helpful and conversational AI assistant. Keep responses natural, concise, and suitable for voice conversation.",
+                    message: userMessage,
+                    model: API_CONFIG.MODEL,
+                    enableGoogleSearch: false
+                })
+            });
+
+            if (!response.ok) throw new Error(`API error: ${response.status}`);
+
+            const result = await response.json();
+            
+            if (result.success && result.response) {
+                return result.response;
+            } else {
+                throw new Error('Invalid API response');
+            }
+        }
+
+        // Text-to-Speech with real-time feel
+        function speakText(text) {
+            return new Promise((resolve) => {
+                // Simulate real-time response by splitting into chunks
+                const words = text.split(' ');
+                let currentIndex = 0;
+                
+                // Clear any existing messages
+                const existingSpeaking = document.querySelector('.message.speaking');
+                if (existingSpeaking) {
+                    existingSpeaking.remove();
+                }
+                
+                // Create speaking message
+                const speakingMessage = addMessage('ai', '');
+                speakingMessage.classList.add('speaking');
+                
+                // Update UI for speaking
+                elements.statusDot.classList.add('speaking');
+                elements.statusText.textContent = 'Speaking...';
+                updateVoiceVisualizer(0.5);
+                
+                // Simulate word-by-word appearance
+                const interval = setInterval(() => {
+                    if (currentIndex < words.length) {
+                        const currentText = words.slice(0, currentIndex + 1).join(' ');
+                        speakingMessage.querySelector('.message-content').textContent = currentText + '...';
+                        currentIndex++;
+                        
+                        // Update visualizer with random values for natural feel
+                        updateVoiceVisualizer(0.3 + Math.random() * 0.4);
+                    } else {
+                        clearInterval(interval);
+                        speakingMessage.querySelector('.message-content').textContent = text;
+                        speakingMessage.classList.remove('speaking');
+                        
+                        // Reset UI
+                        elements.statusDot.classList.remove('speaking');
+                        elements.statusText.textContent = 'Ready to listen';
+                        updateVoiceVisualizer(0);
+                        
+                        resolve();
+                    }
+                }, 80); // Adjust speed as needed
+            });
         }
 
         function showError(message) {
             const errorDiv = document.createElement('div');
             errorDiv.className = 'error';
             errorDiv.textContent = message;
-            elements.chatMessages.appendChild(errorDiv);
-            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+            elements.messagesContainer.appendChild(errorDiv);
+            elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
             
             setTimeout(() => {
                 errorDiv.remove();
